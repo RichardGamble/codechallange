@@ -36,11 +36,14 @@ namespace WebAPI.Controllers
         public JsonResult Post([FromBody] Employee emp)
         {
             Employee employee = new Employee();
-            employee.EmployeeFirstName = emp.EmployeeFirstName;
+            employee = emp;
+            employee.EmployeeId = 0;
+            employee.DateCreated = DateTime.Now;
+            employee.DateUpdated = DateTime.Now;
             _dbContext.Employees.Add(employee);
             _dbContext.SaveChanges();
 
-            return new JsonResult("Employees added successfully");
+            return new JsonResult("Employee added successfully");
         }
 
         [HttpPut]
@@ -50,7 +53,7 @@ namespace WebAPI.Controllers
             employee.EmployeeFirstName = emp.EmployeeFirstName;
             _dbContext.SaveChanges();
 
-            return new JsonResult("Department updated successfully");
+            return new JsonResult("Employee updated successfully");
         }
 
         [HttpDelete("{id}")]
@@ -60,7 +63,7 @@ namespace WebAPI.Controllers
             _dbContext.Remove(Employees);
             _dbContext.SaveChanges();
 
-            return new JsonResult("Employees deleted successfully");
+            return new JsonResult("Employee deleted successfully");
         }
 
     }
