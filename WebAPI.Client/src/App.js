@@ -22,8 +22,7 @@ function App() {
 
 				<Routes>
 					<Route path='/' element={<Home/>} exact></Route>
-					<Route path='/employee' element={<Employee/>}></Route>
-					<Route path='/dependents' element={<Dependents/>}></Route>
+					<Route path='/employee/:id' element={<Employee/>}></Route>
 				</Routes>
 			</div>
 		</Router>

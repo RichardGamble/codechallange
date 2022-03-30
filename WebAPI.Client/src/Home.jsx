@@ -1,16 +1,20 @@
 import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 
-import { Container, Row, Col } from 'react-bootstrap';
+import { Container, Row, Col, Button } from 'react-bootstrap';
 import EmployeeModal from './EmployeeModal';
+import DeleteConfirmationModal from './DeleteConfirmationModal';
 import moment from 'moment';
+import { LinkContainer } from 'react-router-bootstrap';
 
 const Home = (props) => {
 	const axios = require('axios');
-	const [showModal, setShowModal] = useState(false);
+	const [modalShow, setModalShow] = useState(false);
+	const [modalShowDelete, setModalShowDelete] = useState(false);
 	const [actionType, setActionType] = useState();
 	const [employees, setEmployees] = useState([{}]);
 	const [isLoadingEmployees, setIsLoadingEmployees] = useState(true);
+	const [selectedEmployee, setSelectedEmployee] = useState({});
 
 	useEffect(() => {
 		getEmployees();
@@ -28,16 +32,15 @@ const Home = (props) => {
 		}
 	}
 
-	const [selectedEmployee, setSelectedEmployee] = useState({
-		EmployeeId: 1,
-		EmployeeName: 'test',
-	});
-
-	const displayModal = () => {
-		setShowModal(true);
+	let modalClose = () => {
+		setModalShow(false);
+		getEmployees();
 	};
-	const[modalShow,setModalShow] = useState(false)
-	let modalClose=()=>setModalShow(false)
+
+	let modalCloseDelete = () => {
+		setModalShowDelete(false);
+		getEmployees();
+	};
 
 	return (
 		<div>
@@ -47,7 +50,7 @@ const Home = (props) => {
 						<button
 							type='button'
 							class='btn btn-primary'
-							onClick={() => displayModal()}>
+							onClick={() => setModalShow(true)}>
 							Add Employee
 						</button>
 					</Col>
@@ -74,19 +77,19 @@ const Home = (props) => {
 											<td>{emp.EmployeeLastName}</td>
 											<td>{moment(emp.DateCreated).format('MM/DD/YYYY')}</td>
 											<td>{moment(emp.DateUpdated).format('MM/DD/YYYY')}</td>
-											<td>{emp.IsTerminated === true ? 'Yes' : 'False'}</td>
+											<td>{emp.IsTerminated === true ? 'Yes' : 'No'}</td>
 											<td>
 												<>
-													<button
-														type='button'
-														class='btn btn-primary'
-														onClick={()=>setModalShow(true)}>
-														Edit
-													</button>{' '}
+													<LinkContainer to='/employee/'>
+														<Button>Edit</Button>
+													</LinkContainer>{' '}
 													<button
 														type='button'
 														class='btn btn-danger'
-														onClick={() => this.deleteemp(emp.EmployeeId)}>
+														onClick={() => {
+															setSelectedEmployee(emp);
+															setModalShowDelete(true);
+														}}>
 														Delete
 													</button>
 												</>
@@ -112,6 +115,13 @@ const Home = (props) => {
 				employeeInfo={selectedEmployee}
 				action={actionType}
 				onHide={modalClose}
+			/>
+
+			<DeleteConfirmationModal
+				show={modalShowDelete}
+				info={selectedEmployee}
+				isEmployee={true}
+				onHide={modalCloseDelete}
 			/>
 		</div>
 	);

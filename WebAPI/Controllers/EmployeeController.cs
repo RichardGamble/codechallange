@@ -25,39 +25,82 @@ namespace WebAPI.Controllers
         }
 
         [HttpGet]
-        public JsonResult Get()
+        public async Task<ActionResult<IEnumerable<Employee>>> GetEmployees()
         {
-            var Employees = _dbContext.Employees.ToList();
+            return await _dbContext.Employees.ToListAsync();
+        }
 
-            return new JsonResult(Employees);
+        [HttpGet("{id}")]
+        public async Task<ActionResult<Employee>> GetEmployee(int id)
+        {
+            var employee = await _dbContext.Employees.FindAsync(id);
+
+            if (employee == null)
+            {
+                return NotFound();
+            }
+
+            return employee;
         }
 
         [HttpPost]
-        public JsonResult Post([FromBody] Employee emp)
+        public async Task<ActionResult<Employee>> CreateEmployee(Employee emp)
         {
-            Employee employee = new Employee();
-            employee = emp;
-            employee.EmployeeId = 0;
-            employee.DateCreated = DateTime.Now;
-            employee.DateUpdated = DateTime.Now;
-            _dbContext.Employees.Add(employee);
-            _dbContext.SaveChanges();
+            var employee = new Employee
+            {
+                EmployeeFirstName = emp.EmployeeFirstName,
+                EmployeeLastName = emp.EmployeeLastName,
+                DateCreated = DateTime.Now,
+                DateUpdated = DateTime.Now,
+                DateOfBirth = emp.DateOfBirth,
+                EmployeeSSN = emp.EmployeeSSN,
+                IsTerminated = emp.IsTerminated
+            };
 
-            return new JsonResult("Employee added successfully");
+            _dbContext.Employees.Add(employee);
+            await _dbContext.SaveChangesAsync();
+
+            return CreatedAtAction(
+                nameof(GetEmployee),
+                new { id = employee.EmployeeId },
+                employee);
         }
 
-        [HttpPut]
-        public JsonResult Put([FromBody] Employee emp)
+        [HttpPut("{id}")]
+        public async Task<IActionResult> UpdateEmployee(int id, Employee emp)
         {
-            Employee employee = _dbContext.Employees.Where(e => e.EmployeeId == emp.EmployeeId).FirstOrDefault();
-            employee.EmployeeFirstName = emp.EmployeeFirstName;
-            _dbContext.SaveChanges();
+            if (id != emp.EmployeeId)
+            {
+                return BadRequest();
+            }
 
-            return new JsonResult("Employee updated successfully");
+            var employee = await _dbContext.Employees.FindAsync(id);
+            if (employee == null)
+            {
+                return NotFound();
+            }
+
+            employee.EmployeeFirstName = emp.EmployeeFirstName;
+            employee.EmployeeLastName = emp.EmployeeLastName;
+            employee.DateUpdated = DateTime.Now;
+            employee.EmployeeSSN = emp.EmployeeSSN;
+            employee.DateOfBirth = emp.DateOfBirth;
+            employee.IsTerminated = emp.IsTerminated;
+
+            try
+            {
+                await _dbContext.SaveChangesAsync();
+            }
+            catch (DbUpdateConcurrencyException) when (!EmployeeExists(id))
+            {
+                return NotFound();
+            }
+
+            return NoContent();
         }
 
         [HttpDelete("{id}")]
-        public JsonResult Delete([FromRoute] int id)
+        public JsonResult DeleteEmployee([FromRoute] int id)
         {
             Employee Employees = _dbContext.Employees.Where(e => e.EmployeeId == id).FirstOrDefault();
             _dbContext.Remove(Employees);
@@ -65,6 +108,9 @@ namespace WebAPI.Controllers
 
             return new JsonResult("Employee deleted successfully");
         }
-
+        private bool EmployeeExists(long id)
+        {
+            return _dbContext.Employees.Any(e => e.EmployeeId == id);
+        }
     }
 }
