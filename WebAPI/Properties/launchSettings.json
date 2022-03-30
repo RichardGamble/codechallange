@@ -18,7 +18,7 @@
     "WebAPI": {
       "commandName": "Project",
       "launchBrowser": true,
-      "launchUrl": "weatherforecast",
+      "launchUrl": "employee",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development"
       },

@@ -9,8 +9,8 @@ namespace WebAPI.Model
 {
     public partial class Deduction
     {
-        public long DeductionId { get; set; }
-        public long PaycheckId { get; set; }
+        public int DeductionId { get; set; }
+        public int PaycheckId { get; set; }
         public bool? IsEmployee { get; set; }
         public decimal? Discount { get; set; }
         public string Name { get; set; }

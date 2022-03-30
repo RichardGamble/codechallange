@@ -108,7 +108,7 @@ namespace WebAPI.Controllers
 
             return new JsonResult("Employee deleted successfully");
         }
-        private bool EmployeeExists(long id)
+        private bool EmployeeExists(int id)
         {
             return _dbContext.Employees.Any(e => e.EmployeeId == id);
         }

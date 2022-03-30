@@ -24,12 +24,17 @@ namespace WebAPI.Controllers
             _dbContext = employeeDBContext;
         }
 
-        [HttpGet]
-        public JsonResult Get()
+        [HttpGet("{id}")]
+        public async Task<ActionResult<IEnumerable<Dependent>>> GetDependents(int id)
         {
-            var Dependents = _dbContext.Dependents.ToList();
+            var dependents = await _dbContext.Dependents.Where(d => d.EmployeeId == id).ToListAsync();
 
-            return new JsonResult(Dependents);
+            if (dependents == null)
+            {
+                return NotFound();
+            }
+
+            return dependents;
         }
 
         [HttpPost]

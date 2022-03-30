@@ -21,9 +21,9 @@ namespace WebAPI.Migrations
 
             modelBuilder.Entity("WebAPI.Model.Deduction", b =>
                 {
-                    b.Property<long>("DeductionId")
+                    b.Property<int>("DeductionId")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint")
+                        .HasColumnType("int")
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
                     b.Property<decimal?>("Cost")
@@ -40,11 +40,11 @@ namespace WebAPI.Migrations
                         .HasMaxLength(50)
                         .IsUnicode(false);
 
-                    b.Property<long>("PaycheckId")
-                        .HasColumnType("bigint");
+                    b.Property<int>("PaycheckId")
+                        .HasColumnType("int");
 
                     b.HasKey("DeductionId")
-                        .HasName("PK__Deductio__E2604C578041F446");
+                        .HasName("PK__Deductio__E2604C5749F010BF");
 
                     b.HasIndex("PaycheckId");
 
@@ -53,9 +53,9 @@ namespace WebAPI.Migrations
 
             modelBuilder.Entity("WebAPI.Model.Dependent", b =>
                 {
-                    b.Property<long>("DependentId")
+                    b.Property<int>("DependentId")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint")
+                        .HasColumnType("int")
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
                     b.Property<DateTime?>("DateCreated")
@@ -83,8 +83,8 @@ namespace WebAPI.Migrations
                         .HasMaxLength(9)
                         .IsUnicode(false);
 
-                    b.Property<long>("EmployeeId")
-                        .HasColumnType("bigint");
+                    b.Property<int>("EmployeeId")
+                        .HasColumnType("int");
 
                     b.HasKey("DependentId")
                         .HasName("PK__Dependen__9BC67CF1B2EA84BA");
@@ -96,9 +96,9 @@ namespace WebAPI.Migrations
 
             modelBuilder.Entity("WebAPI.Model.Employee", b =>
                 {
-                    b.Property<long>("EmployeeId")
+                    b.Property<int>("EmployeeId")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint")
+                        .HasColumnType("int")
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
                     b.Property<DateTime?>("DateCreated")
@@ -121,7 +121,7 @@ namespace WebAPI.Migrations
                         .IsUnicode(false);
 
                     b.Property<string>("EmployeeSsn")
-                        .HasColumnName("EmployeeSsn")
+                        .HasColumnName("EmployeeSSN")
                         .HasColumnType("varchar(9)")
                         .HasMaxLength(9)
                         .IsUnicode(false);
@@ -137,16 +137,16 @@ namespace WebAPI.Migrations
 
             modelBuilder.Entity("WebAPI.Model.Paycheck", b =>
                 {
-                    b.Property<long>("PaycheckId")
+                    b.Property<int>("PaycheckId")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint")
+                        .HasColumnType("int")
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
                     b.Property<decimal?>("DeductionsTotal")
                         .HasColumnType("numeric(18, 0)");
 
-                    b.Property<long>("EmployeeId")
-                        .HasColumnType("bigint");
+                    b.Property<int>("EmployeeId")
+                        .HasColumnType("int");
 
                     b.Property<decimal?>("GrossPay")
                         .HasColumnType("numeric(18, 0)");
@@ -155,7 +155,7 @@ namespace WebAPI.Migrations
                         .HasColumnType("numeric(18, 0)");
 
                     b.HasKey("PaycheckId")
-                        .HasName("PK__Paycheck__E1043DFECDFB1A45");
+                        .HasName("PK__Paycheck__E1043DFE65C7B3C5");
 
                     b.HasIndex("EmployeeId");
 

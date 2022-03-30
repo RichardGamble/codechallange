@@ -15,7 +15,7 @@ namespace WebAPI.Model
             Paychecks = new HashSet<Paycheck>();
         }
 
-        public long EmployeeId { get; set; }
+        public int EmployeeId { get; set; }
         public string EmployeeFirstName { get; set; }
         public string EmployeeLastName { get; set; }
         public string EmployeeSsn { get; set; }

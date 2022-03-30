@@ -9,19 +9,16 @@ const EmployeeModal = (props) => {
 	const axios = require('axios');
 	const { employeeInfo, show, actionType, onHide } = props;
 	const headers = {
-		'Content-Type': 'application/json',
-		'Authorization': 'JWT fefege...',
+		'Content-Type': 'application/json; charset=utf-8',
+		// Authorization: 'JWT fefege...',
 	};
 
 	const addNewEmpoyee = (values) => {
 		try {
-			const response = axios.post(process.env.REACT_APP_API + 'employee', values, {
+			axios.post(process.env.REACT_APP_API + 'employee', values, {
 				headers: headers,
 			});
-			console.log(response);
-		} catch (error) {
-			console.error(error);
-		}
+		} catch (error) {}
 	};
 
 	const schema = yup.object().shape({
@@ -32,12 +29,14 @@ const EmployeeModal = (props) => {
 		EmployeeLastName: yup
 			.string()
 			.required('Employee Last Name is a required field'),
-		EmployeeSSN: yup
+		EmployeeSsn: yup
 			.string()
 			.required('Employee SSN is a required field')
-			.matches(/\d{9}/, 'Must only be numbers'),
+			.matches(/\d{9}/, 'Must only be numbers')
+			.min(9, 'You must have exactly 9 numbers')
+			.max(9, 'You must have exactly 9 numbers'),
 		DateOfBirth: yup
-			.string()
+			.date()
 			.required('Employee Date of Birth is a required field'),
 		IsTerminated: yup.bool().required(),
 	});
@@ -55,7 +54,7 @@ const EmployeeModal = (props) => {
 						EmployeeId: 0,
 						EmployeeFirstName: '',
 						EmployeeLastName: '',
-						EmployeeSSN: '',
+						EmployeeSsn: '',
 						DateOfBirth: '',
 						IsTerminated: false,
 						DateCreated: null,
@@ -109,15 +108,15 @@ const EmployeeModal = (props) => {
 									<Form.Label>Employee SSN</Form.Label>
 									<Form.Control
 										type='string'
-										name='EmployeeSSN'
-										value={values.EmployeeSSN}
+										name='EmployeeSsn'
+										value={values.EmployeeSsn}
 										onChange={handleChange}
-										isValid={touched.EmployeeSSN && !errors.EmployeeSSN}
-										isInvalid={touched.EmployeeSSN && !!errors.EmployeeSSN}
+										isValid={touched.EmployeeSsn && !errors.EmployeeSsn}
+										isInvalid={touched.EmployeeSsn && !!errors.EmployeeSsn}
 									/>
 									<Form.Control.Feedback>Looks good!</Form.Control.Feedback>
 									<Form.Control.Feedback type='invalid'>
-										{errors.EmployeeSSN}
+										{errors.EmployeeSsn}
 									</Form.Control.Feedback>
 								</Form.Group>
 								<Form.Group as={Col} md='3' controlId='validationFormik02'>
@@ -156,9 +155,7 @@ const EmployeeModal = (props) => {
 											<Button variant='secondary' onClick={onHide}>
 												Close
 											</Button>{' '}
-											<Button type='submit' disabled={!(isValid && dirty)}>
-												Submit form
-											</Button>
+											<Button type='submit'>Submit form</Button>
 										</div>
 									</div>
 								</Col>

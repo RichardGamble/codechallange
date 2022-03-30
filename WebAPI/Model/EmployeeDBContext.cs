@@ -28,6 +28,7 @@ namespace WebAPI.Model
         {
             if (!optionsBuilder.IsConfigured)
             {
+#warning To protect potentially sensitive information in your connection string, you should move it out of source code. See http://go.microsoft.com/fwlink/?LinkId=723263 for guidance on storing connection strings.
                 optionsBuilder.UseSqlServer("Server=.\\;Database=EmployeeDB;Trusted_Connection=True;");
             }
         }
@@ -37,7 +38,7 @@ namespace WebAPI.Model
             modelBuilder.Entity<Deduction>(entity =>
             {
                 entity.HasKey(e => e.DeductionId)
-                    .HasName("PK__Deductio__E2604C578041F446");
+                    .HasName("PK__Deductio__E2604C5749F010BF");
 
                 entity.Property(e => e.Cost).HasColumnType("numeric(18, 0)");
 
@@ -99,7 +100,7 @@ namespace WebAPI.Model
                     .IsUnicode(false);
 
                 entity.Property(e => e.EmployeeSsn)
-                    .HasColumnName("EmployeeSsn")
+                    .HasColumnName("EmployeeSSN")
                     .HasMaxLength(9)
                     .IsUnicode(false);
             });
@@ -107,7 +108,7 @@ namespace WebAPI.Model
             modelBuilder.Entity<Paycheck>(entity =>
             {
                 entity.HasKey(e => e.PaycheckId)
-                    .HasName("PK__Paycheck__E1043DFECDFB1A45");
+                    .HasName("PK__Paycheck__E1043DFE65C7B3C5");
 
                 entity.Property(e => e.DeductionsTotal).HasColumnType("numeric(18, 0)");
 

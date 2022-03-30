@@ -3,7 +3,6 @@ import './App.css';
 import Navigation from './Navigation';
 import Employee from './Employee';
 import Home from './Home';
-import Dependents from './Dependents';
 
 import {
 	BrowserRouter as Router,

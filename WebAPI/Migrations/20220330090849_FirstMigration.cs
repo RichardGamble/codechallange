@@ -11,11 +11,11 @@ namespace WebAPI.Migrations
                 name: "Employees",
                 columns: table => new
                 {
-                    EmployeeId = table.Column<long>(nullable: false)
+                    EmployeeId = table.Column<int>(nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     EmployeeFirstName = table.Column<string>(unicode: false, maxLength: 30, nullable: true),
                     EmployeeLastName = table.Column<string>(unicode: false, maxLength: 30, nullable: true),
-                    EmployeeSsn = table.Column<string>(unicode: false, maxLength: 9, nullable: true),
+                    EmployeeSSN = table.Column<string>(unicode: false, maxLength: 9, nullable: true),
                     DateCreated = table.Column<DateTime>(type: "date", nullable: true),
                     DateUpdated = table.Column<DateTime>(type: "date", nullable: true),
                     DateOfBirth = table.Column<DateTime>(nullable: true),
@@ -30,9 +30,9 @@ namespace WebAPI.Migrations
                 name: "Dependents",
                 columns: table => new
                 {
-                    DependentId = table.Column<long>(nullable: false)
+                    DependentId = table.Column<int>(nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    EmployeeId = table.Column<long>(nullable: false),
+                    EmployeeId = table.Column<int>(nullable: false),
                     DependentFirstName = table.Column<string>(unicode: false, maxLength: 30, nullable: true),
                     DependentLastName = table.Column<string>(unicode: false, maxLength: 30, nullable: true),
                     DependentSSN = table.Column<string>(unicode: false, maxLength: 9, nullable: true),
@@ -55,16 +55,16 @@ namespace WebAPI.Migrations
                 name: "Paychecks",
                 columns: table => new
                 {
-                    PaycheckId = table.Column<long>(nullable: false)
+                    PaycheckId = table.Column<int>(nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    EmployeeId = table.Column<long>(nullable: false),
+                    EmployeeId = table.Column<int>(nullable: false),
                     GrossPay = table.Column<decimal>(type: "numeric(18, 0)", nullable: true),
                     DeductionsTotal = table.Column<decimal>(type: "numeric(18, 0)", nullable: true),
                     NetPay = table.Column<decimal>(type: "numeric(18, 0)", nullable: true)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK__Paycheck__E1043DFECDFB1A45", x => x.PaycheckId);
+                    table.PrimaryKey("PK__Paycheck__E1043DFE65C7B3C5", x => x.PaycheckId);
                     table.ForeignKey(
                         name: "FK_Paycheck_Employees",
                         column: x => x.EmployeeId,
@@ -77,9 +77,9 @@ namespace WebAPI.Migrations
                 name: "Deductions",
                 columns: table => new
                 {
-                    DeductionId = table.Column<long>(nullable: false)
+                    DeductionId = table.Column<int>(nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    PaycheckId = table.Column<long>(nullable: false),
+                    PaycheckId = table.Column<int>(nullable: false),
                     IsEmployee = table.Column<bool>(nullable: true),
                     Discount = table.Column<decimal>(type: "numeric(18, 0)", nullable: true),
                     Name = table.Column<string>(unicode: false, maxLength: 50, nullable: true),
@@ -87,7 +87,7 @@ namespace WebAPI.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK__Deductio__E2604C578041F446", x => x.DeductionId);
+                    table.PrimaryKey("PK__Deductio__E2604C5749F010BF", x => x.DeductionId);
                     table.ForeignKey(
                         name: "FK_Deductions_Paychecks",
                         column: x => x.PaycheckId,

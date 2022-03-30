@@ -14,8 +14,8 @@ namespace WebAPI.Model
             Deductions = new HashSet<Deduction>();
         }
 
-        public long PaycheckId { get; set; }
-        public long EmployeeId { get; set; }
+        public int PaycheckId { get; set; }
+        public int EmployeeId { get; set; }
         public decimal? GrossPay { get; set; }
         public decimal? DeductionsTotal { get; set; }
         public decimal? NetPay { get; set; }

@@ -9,8 +9,8 @@ namespace WebAPI.Model
 {
     public partial class Dependent
     {
-        public long DependentId { get; set; }
-        public long EmployeeId { get; set; }
+        public int DependentId { get; set; }
+        public int EmployeeId { get; set; }
         public string DependentFirstName { get; set; }
         public string DependentLastName { get; set; }
         public string DependentSsn { get; set; }

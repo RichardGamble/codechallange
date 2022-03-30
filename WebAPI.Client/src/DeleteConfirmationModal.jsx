@@ -6,18 +6,21 @@ import * as yup from 'yup';
 import { Modal, Button, Row, Col, Form, InputGroup } from 'react-bootstrap';
 
 const DeleteConfirmationModal = (props) => {
-    const axios = require('axios');
+	const axios = require('axios');
 	const { info, show, actionType, onHide, isEmployee } = props;
 	const headers = {
 		'Content-Type': 'application/json',
-		'Authorization': 'JWT fefege...',
+		Authorization: 'JWT fefege...',
 	};
 
 	const handleSubmit = (event) => {
 		try {
-			const response = axios.delete(process.env.REACT_APP_API + 'employee/'+ info.EmployeeId, {
-				headers: headers,
-			});
+			const response = axios.delete(
+				process.env.REACT_APP_API + 'employee/' + info.EmployeeId,
+				{
+					headers: headers,
+				}
+			);
 			console.log(response);
 		} catch (error) {
 			console.error(error);
@@ -36,10 +39,12 @@ const DeleteConfirmationModal = (props) => {
 			<Modal.Footer>
 				<Button variant='secondary' onClick={onHide}>
 					Cancel
-				</Button>
-				<Button variant='danger' type ="submit" onClick={handleSubmit}>
-					Yes, delete {isEmployee ? 'employee' : 'dependent'}
-				</Button>
+				</Button>{' '}
+				<Form>
+					<Button variant='danger' type='submit' onClick={handleSubmit}>
+						Yes, delete {isEmployee ? 'employee' : 'dependent'}
+					</Button>
+				</Form>
 			</Modal.Footer>
 		</Modal>
 	);
