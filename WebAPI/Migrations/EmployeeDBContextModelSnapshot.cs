@@ -19,11 +19,43 @@ namespace WebAPI.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 128)
                 .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
+            modelBuilder.Entity("WebAPI.Model.Deduction", b =>
+                {
+                    b.Property<long>("DeductionId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<decimal?>("Cost")
+                        .HasColumnType("numeric(18, 0)");
+
+                    b.Property<decimal?>("Discount")
+                        .HasColumnType("numeric(18, 0)");
+
+                    b.Property<bool?>("IsEmployee")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Name")
+                        .HasColumnType("varchar(50)")
+                        .HasMaxLength(50)
+                        .IsUnicode(false);
+
+                    b.Property<long>("PaycheckId")
+                        .HasColumnType("bigint");
+
+                    b.HasKey("DeductionId")
+                        .HasName("PK__Deductio__E2604C578041F446");
+
+                    b.HasIndex("PaycheckId");
+
+                    b.ToTable("Deductions");
+                });
+
             modelBuilder.Entity("WebAPI.Model.Dependent", b =>
                 {
-                    b.Property<int>("DependentId")
+                    b.Property<long>("DependentId")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
+                        .HasColumnType("bigint")
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
                     b.Property<DateTime?>("DateCreated")
@@ -45,14 +77,14 @@ namespace WebAPI.Migrations
                         .HasMaxLength(30)
                         .IsUnicode(false);
 
-                    b.Property<string>("DependentSSN")
+                    b.Property<string>("DependentSsn")
                         .HasColumnName("DependentSSN")
                         .HasColumnType("varchar(9)")
                         .HasMaxLength(9)
                         .IsUnicode(false);
 
-                    b.Property<int>("EmployeeId")
-                        .HasColumnType("int");
+                    b.Property<long>("EmployeeId")
+                        .HasColumnType("bigint");
 
                     b.HasKey("DependentId")
                         .HasName("PK__Dependen__9BC67CF1B2EA84BA");
@@ -60,48 +92,13 @@ namespace WebAPI.Migrations
                     b.HasIndex("EmployeeId");
 
                     b.ToTable("Dependents");
-
-                    b.HasData(
-                        new
-                        {
-                            DependentId = 1,
-                            DateCreated = new DateTime(2022, 3, 26, 22, 23, 24, 30, DateTimeKind.Local).AddTicks(8357),
-                            DateOfBirth = new DateTime(1974, 10, 12, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            DateUpdated = new DateTime(2022, 3, 26, 22, 23, 24, 34, DateTimeKind.Local).AddTicks(4250),
-                            DependentFirstName = "Evelyn",
-                            DependentLastName = "Abbott",
-                            DependentSSN = "222222222",
-                            EmployeeId = 1
-                        },
-                        new
-                        {
-                            DependentId = 2,
-                            DateCreated = new DateTime(2022, 3, 26, 22, 23, 24, 34, DateTimeKind.Local).AddTicks(5045),
-                            DateOfBirth = new DateTime(2010, 9, 12, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            DateUpdated = new DateTime(2022, 3, 26, 22, 23, 24, 34, DateTimeKind.Local).AddTicks(5065),
-                            DependentFirstName = "Noah",
-                            DependentLastName = "Abbott",
-                            DependentSSN = "777777777",
-                            EmployeeId = 1
-                        },
-                        new
-                        {
-                            DependentId = 3,
-                            DateCreated = new DateTime(2022, 3, 26, 22, 23, 24, 34, DateTimeKind.Local).AddTicks(5088),
-                            DateOfBirth = new DateTime(1914, 2, 20, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            DateUpdated = new DateTime(2022, 3, 26, 22, 23, 24, 34, DateTimeKind.Local).AddTicks(5091),
-                            DependentFirstName = "Maria",
-                            DependentLastName = "Trapp",
-                            DependentSSN = "333333333",
-                            EmployeeId = 2
-                        });
                 });
 
             modelBuilder.Entity("WebAPI.Model.Employee", b =>
                 {
-                    b.Property<int>("EmployeeId")
+                    b.Property<long>("EmployeeId")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
+                        .HasColumnType("bigint")
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
                     b.Property<DateTime?>("DateCreated")
@@ -123,8 +120,8 @@ namespace WebAPI.Migrations
                         .HasMaxLength(30)
                         .IsUnicode(false);
 
-                    b.Property<string>("EmployeeSSN")
-                        .HasColumnName("EmployeeSSN")
+                    b.Property<string>("EmployeeSsn")
+                        .HasColumnName("EmployeeSsn")
                         .HasColumnType("varchar(9)")
                         .HasMaxLength(9)
                         .IsUnicode(false);
@@ -136,28 +133,43 @@ namespace WebAPI.Migrations
                         .HasName("PK__Employee__7AD04F113516F170");
 
                     b.ToTable("Employees");
+                });
 
-                    b.HasData(
-                        new
-                        {
-                            EmployeeId = 1,
-                            DateCreated = new DateTime(2022, 3, 26, 22, 23, 24, 36, DateTimeKind.Local).AddTicks(8992),
-                            DateUpdated = new DateTime(2022, 3, 26, 22, 23, 24, 36, DateTimeKind.Local).AddTicks(9356),
-                            EmployeeFirstName = "Lee",
-                            EmployeeLastName = "Abbott",
-                            EmployeeSSN = "999999999",
-                            IsTerminated = false
-                        },
-                        new
-                        {
-                            EmployeeId = 2,
-                            DateCreated = new DateTime(2022, 3, 26, 22, 23, 24, 36, DateTimeKind.Local).AddTicks(9999),
-                            DateUpdated = new DateTime(2022, 3, 26, 22, 23, 24, 37, DateTimeKind.Local).AddTicks(25),
-                            EmployeeFirstName = "Georg",
-                            EmployeeLastName = "Trapp",
-                            EmployeeSSN = "555555555",
-                            IsTerminated = false
-                        });
+            modelBuilder.Entity("WebAPI.Model.Paycheck", b =>
+                {
+                    b.Property<long>("PaycheckId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<decimal?>("DeductionsTotal")
+                        .HasColumnType("numeric(18, 0)");
+
+                    b.Property<long>("EmployeeId")
+                        .HasColumnType("bigint");
+
+                    b.Property<decimal?>("GrossPay")
+                        .HasColumnType("numeric(18, 0)");
+
+                    b.Property<decimal?>("NetPay")
+                        .HasColumnType("numeric(18, 0)");
+
+                    b.HasKey("PaycheckId")
+                        .HasName("PK__Paycheck__E1043DFECDFB1A45");
+
+                    b.HasIndex("EmployeeId");
+
+                    b.ToTable("Paychecks");
+                });
+
+            modelBuilder.Entity("WebAPI.Model.Deduction", b =>
+                {
+                    b.HasOne("WebAPI.Model.Paycheck", "Paycheck")
+                        .WithMany("Deductions")
+                        .HasForeignKey("PaycheckId")
+                        .HasConstraintName("FK_Deductions_Paychecks")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("WebAPI.Model.Dependent", b =>
@@ -166,6 +178,17 @@ namespace WebAPI.Migrations
                         .WithMany("Dependents")
                         .HasForeignKey("EmployeeId")
                         .HasConstraintName("FK__Dependent__Emplo__534D60F1")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("WebAPI.Model.Paycheck", b =>
+                {
+                    b.HasOne("WebAPI.Model.Employee", "Employee")
+                        .WithMany("Paychecks")
+                        .HasForeignKey("EmployeeId")
+                        .HasConstraintName("FK_Paycheck_Employees")
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
 #pragma warning restore 612, 618

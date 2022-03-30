@@ -19,19 +19,40 @@ namespace WebAPI.Model
         {
         }
 
+        public virtual DbSet<Deduction> Deductions { get; set; }
         public virtual DbSet<Dependent> Dependents { get; set; }
         public virtual DbSet<Employee> Employees { get; set; }
+        public virtual DbSet<Paycheck> Paychecks { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             if (!optionsBuilder.IsConfigured)
             {
-                optionsBuilder.UseSqlServer("name=EmployeeAppConnection");
+                optionsBuilder.UseSqlServer("Server=.\\;Database=EmployeeDB;Trusted_Connection=True;");
             }
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            modelBuilder.Entity<Deduction>(entity =>
+            {
+                entity.HasKey(e => e.DeductionId)
+                    .HasName("PK__Deductio__E2604C578041F446");
+
+                entity.Property(e => e.Cost).HasColumnType("numeric(18, 0)");
+
+                entity.Property(e => e.Discount).HasColumnType("numeric(18, 0)");
+
+                entity.Property(e => e.Name)
+                    .HasMaxLength(50)
+                    .IsUnicode(false);
+
+                entity.HasOne(d => d.Paycheck)
+                    .WithMany(p => p.Deductions)
+                    .HasForeignKey(d => d.PaycheckId)
+                    .HasConstraintName("FK_Deductions_Paychecks");
+            });
+
             modelBuilder.Entity<Dependent>(entity =>
             {
                 entity.HasKey(e => e.DependentId)
@@ -49,7 +70,7 @@ namespace WebAPI.Model
                     .HasMaxLength(30)
                     .IsUnicode(false);
 
-                entity.Property(e => e.DependentSSN)
+                entity.Property(e => e.DependentSsn)
                     .HasColumnName("DependentSSN")
                     .HasMaxLength(9)
                     .IsUnicode(false);
@@ -57,43 +78,7 @@ namespace WebAPI.Model
                 entity.HasOne(d => d.Employee)
                     .WithMany(p => p.Dependents)
                     .HasForeignKey(d => d.EmployeeId)
-                    .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("FK__Dependent__Emplo__534D60F1");
-
-                entity.HasData(
-                   new Dependent
-                   {
-                       DependentId = 1,
-                       EmployeeId = 1,
-                       DependentSSN = "222222222",
-                       DependentFirstName = "Evelyn",
-                       DependentLastName = "Abbott",
-                       DateCreated = DateTime.Now,
-                       DateUpdated = DateTime.Now,
-                       DateOfBirth = new DateTime(1974, 10, 12)
-                   },
-                    new Dependent
-                    {
-                        DependentId = 2,
-                        EmployeeId = 1,
-                        DependentSSN = "777777777",
-                        DependentFirstName = "Noah",
-                        DependentLastName = "Abbott",
-                        DateCreated = DateTime.Now,
-                        DateUpdated = DateTime.Now,
-                        DateOfBirth = new DateTime(2010, 9, 12)
-                    },
-                    new Dependent
-                    {
-                        DependentId = 3,
-                        EmployeeId = 2,
-                        DependentSSN = "333333333",
-                        DependentFirstName = "Maria",
-                        DependentLastName = "Trapp",
-                        DateCreated = DateTime.Now,
-                        DateUpdated = DateTime.Now,
-                        DateOfBirth = new DateTime(1914, 2, 20)
-                    });
             });
 
             modelBuilder.Entity<Employee>(entity =>
@@ -113,33 +98,27 @@ namespace WebAPI.Model
                     .HasMaxLength(30)
                     .IsUnicode(false);
 
-                entity.Property(e => e.EmployeeSSN)
-                    .HasColumnName("EmployeeSSN")
+                entity.Property(e => e.EmployeeSsn)
+                    .HasColumnName("EmployeeSsn")
                     .HasMaxLength(9)
                     .IsUnicode(false);
-                entity.HasData(
-                    new Employee
-                    {
-                        EmployeeId = 1,
-                        EmployeeSSN = "999999999",
-                        EmployeeFirstName = "Lee",
-                        EmployeeLastName = "Abbott",
-                        DateCreated = DateTime.Now,
-                        DateUpdated = DateTime.Now,
-                        IsTerminated = false
-                    },
-                    new Employee
-                    {
-                        EmployeeId = 2,
-                        EmployeeSSN = "555555555",
-                        EmployeeFirstName = "Georg",
-                        EmployeeLastName = "Trapp",
-                        DateCreated = DateTime.Now,
-                        DateUpdated = DateTime.Now,
-                        IsTerminated = false,
-                    }
+            });
 
-                );
+            modelBuilder.Entity<Paycheck>(entity =>
+            {
+                entity.HasKey(e => e.PaycheckId)
+                    .HasName("PK__Paycheck__E1043DFECDFB1A45");
+
+                entity.Property(e => e.DeductionsTotal).HasColumnType("numeric(18, 0)");
+
+                entity.Property(e => e.GrossPay).HasColumnType("numeric(18, 0)");
+
+                entity.Property(e => e.NetPay).HasColumnType("numeric(18, 0)");
+
+                entity.HasOne(d => d.Employee)
+                    .WithMany(p => p.Paychecks)
+                    .HasForeignKey(d => d.EmployeeId)
+                    .HasConstraintName("FK_Paycheck_Employees");
             });
 
             OnModelCreatingPartial(modelBuilder);

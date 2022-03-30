@@ -9,14 +9,15 @@ namespace WebAPI.Model
 {
     public partial class Dependent
     {
-        public int DependentId { get; set; }
-        public int EmployeeId { get; set; }
+        public long DependentId { get; set; }
+        public long EmployeeId { get; set; }
         public string DependentFirstName { get; set; }
         public string DependentLastName { get; set; }
-        public string DependentSSN { get; set; }
+        public string DependentSsn { get; set; }
         public DateTime? DateCreated { get; set; }
         public DateTime? DateUpdated { get; set; }
         public DateTime? DateOfBirth { get; set; }
+
         public virtual Employee Employee { get; set; }
     }
 }

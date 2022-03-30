@@ -53,7 +53,7 @@ namespace WebAPI.Controllers
                 DateCreated = DateTime.Now,
                 DateUpdated = DateTime.Now,
                 DateOfBirth = emp.DateOfBirth,
-                EmployeeSSN = emp.EmployeeSSN,
+                EmployeeSsn = emp.EmployeeSsn,
                 IsTerminated = emp.IsTerminated
             };
 
@@ -83,7 +83,7 @@ namespace WebAPI.Controllers
             employee.EmployeeFirstName = emp.EmployeeFirstName;
             employee.EmployeeLastName = emp.EmployeeLastName;
             employee.DateUpdated = DateTime.Now;
-            employee.EmployeeSSN = emp.EmployeeSSN;
+            employee.EmployeeSsn = emp.EmployeeSsn;
             employee.DateOfBirth = emp.DateOfBirth;
             employee.IsTerminated = emp.IsTerminated;
 

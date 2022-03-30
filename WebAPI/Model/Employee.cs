@@ -12,17 +12,19 @@ namespace WebAPI.Model
         public Employee()
         {
             Dependents = new HashSet<Dependent>();
+            Paychecks = new HashSet<Paycheck>();
         }
 
-        public int EmployeeId { get; set; }
+        public long EmployeeId { get; set; }
         public string EmployeeFirstName { get; set; }
         public string EmployeeLastName { get; set; }
-        public string EmployeeSSN { get; set; }
+        public string EmployeeSsn { get; set; }
         public DateTime? DateCreated { get; set; }
         public DateTime? DateUpdated { get; set; }
         public DateTime? DateOfBirth { get; set; }
         public bool? IsTerminated { get; set; }
 
         public virtual ICollection<Dependent> Dependents { get; set; }
+        public virtual ICollection<Paycheck> Paychecks { get; set; }
     }
 }
