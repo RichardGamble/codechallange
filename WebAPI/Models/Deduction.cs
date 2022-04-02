@@ -5,13 +5,12 @@ using System.Collections.Generic;
 // If you have enabled NRTs for your project, then un-comment the following line:
 // #nullable disable
 
-namespace WebAPI.Model
+namespace WebAPI.Models
 {
     public partial class Deduction
     {
         public int DeductionId { get; set; }
         public int PaycheckId { get; set; }
-        public bool? IsEmployee { get; set; }
         public decimal? Discount { get; set; }
         public string Name { get; set; }
         public decimal? Cost { get; set; }

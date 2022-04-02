@@ -5,7 +5,7 @@ using System.Collections.Generic;
 // If you have enabled NRTs for your project, then un-comment the following line:
 // #nullable disable
 
-namespace WebAPI.Model
+namespace WebAPI.Models
 {
     public partial class Paycheck
     {
@@ -16,10 +16,10 @@ namespace WebAPI.Model
 
         public int PaycheckId { get; set; }
         public int EmployeeId { get; set; }
+        public DateTime? CreatedDate { get; set; }
         public decimal? GrossPay { get; set; }
         public decimal? DeductionsTotal { get; set; }
         public decimal? NetPay { get; set; }
-
         public virtual Employee Employee { get; set; }
         public virtual ICollection<Deduction> Deductions { get; set; }
     }

@@ -1,14 +1,8 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
-using System;
+﻿using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
-using System.Data;
-using System.Data.SqlClient;
-using System.Linq;
 using System.Threading.Tasks;
-using WebAPI.Model;
+using WebAPI.Interfaces;
+using WebAPI.Models;
 
 namespace WebAPI.Controllers
 {
@@ -18,99 +12,87 @@ namespace WebAPI.Controllers
     public class EmployeeController : ControllerBase
     {
         private readonly EmployeeDBContext _dbContext;
+        private readonly IEmployeeInterface _employeeInterface;
 
-        public EmployeeController(EmployeeDBContext employeeDBContext)
+        public EmployeeController(EmployeeDBContext employeeDBContext, IEmployeeInterface employeeInterface)
         {
             _dbContext = employeeDBContext;
+            _employeeInterface = employeeInterface;
         }
 
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Employee>>> GetEmployees()
         {
-            return await _dbContext.Employees.ToListAsync();
+            var employees = await _employeeInterface.GetEmployees();
+            if (employees == null)
+            {
+                return NotFound();
+            }
+
+            return Ok(employees);
         }
 
         [HttpGet("{id}")]
         public async Task<ActionResult<Employee>> GetEmployee(int id)
         {
-            var employee = await _dbContext.Employees.FindAsync(id);
+            var employee = await _employeeInterface.GetEmployee(id);
 
             if (employee == null)
             {
                 return NotFound();
             }
 
-            return employee;
+            return Ok(employee);
         }
 
         [HttpPost]
-        public async Task<ActionResult<Employee>> CreateEmployee(Employee emp)
+        public async Task<ActionResult<Employee>> CreateEmployee(Employee employee)
         {
-            var employee = new Employee
-            {
-                EmployeeFirstName = emp.EmployeeFirstName,
-                EmployeeLastName = emp.EmployeeLastName,
-                DateCreated = DateTime.Now,
-                DateUpdated = DateTime.Now,
-                DateOfBirth = emp.DateOfBirth,
-                EmployeeSsn = emp.EmployeeSsn,
-                IsTerminated = emp.IsTerminated
-            };
-
-            _dbContext.Employees.Add(employee);
-            await _dbContext.SaveChangesAsync();
-
-            return CreatedAtAction(
-                nameof(GetEmployee),
-                new { id = employee.EmployeeId },
-                employee);
-        }
-
-        [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateEmployee(int id, Employee emp)
-        {
-            if (id != emp.EmployeeId)
+            if (employee == null)
             {
                 return BadRequest();
             }
 
-            var employee = await _dbContext.Employees.FindAsync(id);
-            if (employee == null)
-            {
-                return NotFound();
-            }
+            var createdEmployee = await _employeeInterface.AddEmployee(employee);
 
-            employee.EmployeeFirstName = emp.EmployeeFirstName;
-            employee.EmployeeLastName = emp.EmployeeLastName;
-            employee.DateUpdated = DateTime.Now;
-            employee.EmployeeSsn = emp.EmployeeSsn;
-            employee.DateOfBirth = emp.DateOfBirth;
-            employee.IsTerminated = emp.IsTerminated;
-
-            try
-            {
-                await _dbContext.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException) when (!EmployeeExists(id))
-            {
-                return NotFound();
-            }
-
-            return NoContent();
+            return CreatedAtAction(nameof(GetEmployee), 
+                new { id = createdEmployee.EmployeeId },
+                createdEmployee);
         }
 
-        [HttpDelete("{id}")]
-        public JsonResult DeleteEmployee([FromRoute] int id)
+        [HttpPut("{id:int}")]
+        public async Task<ActionResult<Employee>> UpdateEmployee(int id, Employee employee)
         {
-            Employee Employees = _dbContext.Employees.Where(e => e.EmployeeId == id).FirstOrDefault();
-            _dbContext.Remove(Employees);
-            _dbContext.SaveChanges();
+            if (id != employee.EmployeeId)
+            {
+                return BadRequest("Employee ID mismatch"); ;
+            }
 
-            return new JsonResult("Employee deleted successfully");
+            var employeeToUpdate = await _employeeInterface.GetEmployee(id);
+
+            if (employeeToUpdate == null)
+            {
+                return NotFound($"Employee with Id = {id} not found");
+            }
+
+            return await _employeeInterface.UpdateEmployee(employee);
         }
-        private bool EmployeeExists(int id)
+
+        [HttpDelete("{id:int}")]
+        public async Task<ActionResult<Employee>> DeleteEmployee(int id)
         {
-            return _dbContext.Employees.Any(e => e.EmployeeId == id);
+            var employeeToDelete = await _employeeInterface.GetEmployee(id);
+
+            if (employeeToDelete == null)
+            {
+                return NotFound($"Employee with Id = {id} not found");
+            }
+            else
+            {
+                return await _employeeInterface.DeleteEmployee(id);
+            };
+
         }
+
     }
 }

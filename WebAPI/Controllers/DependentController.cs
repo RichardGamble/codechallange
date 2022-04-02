@@ -1,14 +1,8 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
-using System;
+﻿using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
-using System.Data;
-using System.Data.SqlClient;
-using System.Linq;
 using System.Threading.Tasks;
-using WebAPI.Model;
+using WebAPI.Interfaces;
+using WebAPI.Models;
 
 namespace WebAPI.Controllers
 {
@@ -18,54 +12,87 @@ namespace WebAPI.Controllers
     public class DependentController : ControllerBase
     {
         private readonly EmployeeDBContext _dbContext;
+        private readonly IDependentInterface _dependentInterface;
 
-        public DependentController(EmployeeDBContext employeeDBContext)
+        public DependentController(EmployeeDBContext employeeDBContext, IDependentInterface employeeInterface)
         {
             _dbContext = employeeDBContext;
+            _dependentInterface = employeeInterface;
         }
 
-        [HttpGet("{id}")]
-        public async Task<ActionResult<IEnumerable<Dependent>>> GetDependents(int id)
+        [HttpGet("{empid:int}")]
+        public async Task<ActionResult<IEnumerable<Dependent>>> GetDependents(int empid)
         {
-            var dependents = await _dbContext.Dependents.Where(d => d.EmployeeId == id).ToListAsync();
+            var dependents = await _dependentInterface.GetDependents(empid);
 
             if (dependents == null)
             {
                 return NotFound();
             }
 
-            return dependents;
+            return Ok(dependents);
+        }
+
+        [HttpGet("{id:int}")]
+        public async Task<ActionResult<IEnumerable<Dependent>>> GetDependent(int id)
+        {
+            var dependent = await _dependentInterface.GetDependents(id);
+
+            if (dependent == null)
+            {
+                return NotFound();
+            }
+
+            return Ok(dependent);
         }
 
         [HttpPost]
-        public JsonResult Post([FromBody] Dependent dep)
+        public async Task<ActionResult<Dependent>> CreateDependent(Dependent dependent)
         {
-            Dependent dependent = new Dependent();
-            dependent.DependentFirstName = dep.DependentFirstName;
-            _dbContext.Dependents.Add(dependent);
-            _dbContext.SaveChanges();
+            if (dependent == null)
+            {
+                return BadRequest();
+            }
 
-            return new JsonResult("Dependent added successfully");
+            var createdDependent = await _dependentInterface.AddDependent(dependent);
+
+            return CreatedAtAction(nameof(GetDependent),
+                new { id = createdDependent.EmployeeId },
+                createdDependent);
         }
 
+        [HttpPut("{id:int}")]
         [HttpPut]
-        public JsonResult Put([FromBody] Dependent dep)
+        public async Task<ActionResult<Dependent>> UpdateDependent(int id, Dependent dependent)
         {
-            Dependent dependent = _dbContext.Dependents.Where(d => d.DependentId == dep.EmployeeId).FirstOrDefault();
-            dependent.DependentFirstName = dep.DependentFirstName;
-            _dbContext.SaveChanges();
+            if (id != dependent.DependentId)
+            {
+                return BadRequest("Dependent ID mismatch"); ;
+            }
 
-            return new JsonResult("Department updated successfully");
+            var dependentToUpdate = await _dependentInterface.GetDependent(id);
+
+            if (dependentToUpdate == null)
+            {
+                return NotFound($"Eependent with Id = {id} not found");
+            }
+
+            return await _dependentInterface.UpdateDependent(dependent);
         }
 
-        [HttpDelete("{id}")]
-        public JsonResult Delete([FromRoute] int id)
+        [HttpDelete("{id:int}")]
+        public async Task<ActionResult<Dependent>> DeleteDependent(int id)
         {
-            Dependent dependent = _dbContext.Dependents.Where(d => d.DependentId == id).FirstOrDefault();
-            _dbContext.Remove(dependent);
-            _dbContext.SaveChanges();
+            var dependentToDelete = await _dependentInterface.GetDependent(id);
 
-            return new JsonResult("Dependents deleted successfully");
+            if (dependentToDelete == null)
+            {
+                return NotFound($"Dependent with Id = {id} not found");
+            }
+            else
+            {
+                return await _dependentInterface.DeleteDependent(id);
+            };
         }
 
     }

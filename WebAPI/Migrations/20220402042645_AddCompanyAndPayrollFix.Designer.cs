@@ -10,8 +10,8 @@ using WebAPI.Models;
 namespace WebAPI.Migrations
 {
     [DbContext(typeof(EmployeeDBContext))]
-    [Migration("20220330090849_FirstMigration")]
-    partial class FirstMigration
+    [Migration("20220402042645_AddCompanyAndPayrollFix")]
+    partial class AddCompanyAndPayrollFix
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -21,7 +21,25 @@ namespace WebAPI.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 128)
                 .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
-            modelBuilder.Entity("WebAPI.Model.Deduction", b =>
+            modelBuilder.Entity("WebAPI.Models.Company", b =>
+                {
+                    b.Property<int>("CompnayId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<string>("CompanyName")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("CreatedDate")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("CompnayId");
+
+                    b.ToTable("Companies");
+                });
+
+            modelBuilder.Entity("WebAPI.Models.Deduction", b =>
                 {
                     b.Property<int>("DeductionId")
                         .ValueGeneratedOnAdd()
@@ -33,9 +51,6 @@ namespace WebAPI.Migrations
 
                     b.Property<decimal?>("Discount")
                         .HasColumnType("numeric(18, 0)");
-
-                    b.Property<bool?>("IsEmployee")
-                        .HasColumnType("bit");
 
                     b.Property<string>("Name")
                         .HasColumnType("varchar(50)")
@@ -53,7 +68,7 @@ namespace WebAPI.Migrations
                     b.ToTable("Deductions");
                 });
 
-            modelBuilder.Entity("WebAPI.Model.Dependent", b =>
+            modelBuilder.Entity("WebAPI.Models.Dependent", b =>
                 {
                     b.Property<int>("DependentId")
                         .ValueGeneratedOnAdd()
@@ -96,12 +111,15 @@ namespace WebAPI.Migrations
                     b.ToTable("Dependents");
                 });
 
-            modelBuilder.Entity("WebAPI.Model.Employee", b =>
+            modelBuilder.Entity("WebAPI.Models.Employee", b =>
                 {
                     b.Property<int>("EmployeeId")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int")
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<int?>("CompanyCompnayId")
+                        .HasColumnType("int");
 
                     b.Property<DateTime?>("DateCreated")
                         .HasColumnType("date");
@@ -134,15 +152,20 @@ namespace WebAPI.Migrations
                     b.HasKey("EmployeeId")
                         .HasName("PK__Employee__7AD04F113516F170");
 
+                    b.HasIndex("CompanyCompnayId");
+
                     b.ToTable("Employees");
                 });
 
-            modelBuilder.Entity("WebAPI.Model.Paycheck", b =>
+            modelBuilder.Entity("WebAPI.Models.Paycheck", b =>
                 {
                     b.Property<int>("PaycheckId")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int")
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<DateTime?>("CreatedDate")
+                        .HasColumnType("datetime2");
 
                     b.Property<decimal?>("DeductionsTotal")
                         .HasColumnType("numeric(18, 0)");
@@ -164,9 +187,38 @@ namespace WebAPI.Migrations
                     b.ToTable("Paychecks");
                 });
 
-            modelBuilder.Entity("WebAPI.Model.Deduction", b =>
+            modelBuilder.Entity("WebAPI.Models.Payroll", b =>
                 {
-                    b.HasOne("WebAPI.Model.Paycheck", "Paycheck")
+                    b.Property<int>("PayrollId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<int>("CompanyId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime?>("CreatedDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime?>("EndDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("PayPeriod")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime?>("StartDate")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("PayrollId");
+
+                    b.HasIndex("CompanyId");
+
+                    b.ToTable("Payrolls");
+                });
+
+            modelBuilder.Entity("WebAPI.Models.Deduction", b =>
+                {
+                    b.HasOne("WebAPI.Models.Paycheck", "Paycheck")
                         .WithMany("Deductions")
                         .HasForeignKey("PaycheckId")
                         .HasConstraintName("FK_Deductions_Paychecks")
@@ -174,9 +226,9 @@ namespace WebAPI.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("WebAPI.Model.Dependent", b =>
+            modelBuilder.Entity("WebAPI.Models.Dependent", b =>
                 {
-                    b.HasOne("WebAPI.Model.Employee", "Employee")
+                    b.HasOne("WebAPI.Models.Employee", "Employee")
                         .WithMany("Dependents")
                         .HasForeignKey("EmployeeId")
                         .HasConstraintName("FK__Dependent__Emplo__534D60F1")
@@ -184,12 +236,28 @@ namespace WebAPI.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("WebAPI.Model.Paycheck", b =>
+            modelBuilder.Entity("WebAPI.Models.Employee", b =>
                 {
-                    b.HasOne("WebAPI.Model.Employee", "Employee")
+                    b.HasOne("WebAPI.Models.Company", null)
+                        .WithMany("Employees")
+                        .HasForeignKey("CompanyCompnayId");
+                });
+
+            modelBuilder.Entity("WebAPI.Models.Paycheck", b =>
+                {
+                    b.HasOne("WebAPI.Models.Employee", "Employee")
                         .WithMany("Paychecks")
                         .HasForeignKey("EmployeeId")
                         .HasConstraintName("FK_Paycheck_Employees")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("WebAPI.Models.Payroll", b =>
+                {
+                    b.HasOne("WebAPI.Models.Company", "Company")
+                        .WithMany("Payrolls")
+                        .HasForeignKey("CompanyId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });

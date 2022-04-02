@@ -12,7 +12,10 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using WebAPI.Model;
+using WebAPI.Controllers;
+using WebAPI.Interfaces;
+using WebAPI.Models;
+using WebAPI.Services;
 
 namespace WebAPI
 {
@@ -48,6 +51,9 @@ namespace WebAPI
                 = new DefaultContractResolver());
 
             services.AddControllers();
+            services.AddScoped<IEmployeeInterface, EmployeeService>();
+            services.AddScoped<IDependentInterface, DependentService>();
+            services.AddScoped<IPaycheckInterface, PaycheckService>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
