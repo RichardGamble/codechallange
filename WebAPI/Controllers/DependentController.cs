@@ -20,7 +20,7 @@ namespace WebAPI.Controllers
             _dependentInterface = employeeInterface;
         }
 
-        [HttpGet("{empid:int}")]
+        [HttpGet("all/{empid:int}")]
         public async Task<ActionResult<IEnumerable<Dependent>>> GetDependents(int empid)
         {
             var dependents = await _dependentInterface.GetDependents(empid);
@@ -62,7 +62,6 @@ namespace WebAPI.Controllers
         }
 
         [HttpPut("{id:int}")]
-        [HttpPut]
         public async Task<ActionResult<Dependent>> UpdateDependent(int id, Dependent dependent)
         {
             if (id != dependent.DependentId)

@@ -54,6 +54,8 @@ namespace WebAPI
             services.AddScoped<IEmployeeInterface, EmployeeService>();
             services.AddScoped<IDependentInterface, DependentService>();
             services.AddScoped<IPaycheckInterface, PaycheckService>();
+            services.AddScoped<ICompanyInterface, CompanyService>();
+
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

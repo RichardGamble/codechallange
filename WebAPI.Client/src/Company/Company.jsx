@@ -11,41 +11,40 @@ import {
 	Container,
 	Tab,
 	Tabs,
-	Alert
 } from 'react-bootstrap';
-import DependentModal from './EmployeeModal';
-import Paychecks from './Paychecks';
+import DependentModal from './CompanyModal';
+import Payroll from './Payroll';
 import moment from 'moment';
 import { useParams, useLocation } from 'react-router-dom';
 import { Formik } from 'formik';
 import * as yup from 'yup';
 
-const Employee = (props) => {
+const Company = (props) => {
 	const axios = require('axios');
 	let { slug } = useParams();
-	const { employeeInfo, show, onHide } = props;
+	const { companyInfo, show, onHide } = props;
 	let location = useLocation();
 	const [showModal, setShowModal] = useState(false);
 	const [actionType, setActionType] = useState();
 	const [dependents, setDependents] = useState([{}]);
-	const [employee, setEmployee] = useState([{}]);
+	const [company, setCompany] = useState([{}]);
 	const [isLoadingDependents, setIsLoadingDependents] = useState(true);
-	const [isLoadingEmployee, setIsLoadingEmployee] = useState(true);
+	const [isLoadingCompany, setIsLoadingCompany] = useState(true);
 
 	useEffect(() => {
 		var id =
 			location.pathname.split('/')[location.pathname.split('/').length - 1];
-		getEmployee(id);
-		getDependents(id);
+		getCompany(id);
+		// getDependents(id);
 	}, [location]);
 
-	async function getEmployee(id) {
+	async function getCompany(id) {
 		try {
 			const response = await axios.get(
-				process.env.REACT_APP_API + 'employee/' + id
+				process.env.REACT_APP_API + 'company/' + id
 			);
-			setEmployee(response.data);
-			setIsLoadingEmployee(false);
+			setCompany(response.data);
+			setIsLoadingCompany(false);
 			console.log(response);
 		} catch (error) {
 			console.error(error);
@@ -54,7 +53,7 @@ const Employee = (props) => {
 	async function getDependents(empId) {
 		try {
 			const response = await axios.get(
-				process.env.REACT_APP_API + 'dependent/all/' + empId
+				process.env.REACT_APP_API + 'dependent/' + empId
 			);
 			setDependents(response.data);
 			setIsLoadingDependents(false);
@@ -65,26 +64,26 @@ const Employee = (props) => {
 	}
 
 	const schema = yup.object().shape({
-		EmployeeId: yup.string(),
-		EmployeeFirstName: yup
+		CompanyId: yup.string(),
+		CompanyFirstName: yup
 			.string()
-			.required('Employee First Name is a required field'),
-		EmployeeLastName: yup
+			.required('Company First Name is a required field'),
+		CompanyLastName: yup
 			.string()
-			.required('Employee Last Name is a required field'),
-		EmployeeSsn: yup
+			.required('Company Last Name is a required field'),
+		CompanySsn: yup
 			.string()
-			.required('Employee SSN is a required field')
+			.required('Company SSN is a required field')
 			.matches(/\d{9}/, 'Must only be numbers'),
 		DateOfBirth: yup
 			.date()
-			.required('Employee Date of Birth is a required field'),
+			.required('Company Date of Birth is a required field'),
 		IsTerminated: yup.bool().required(),
 	});
 
 	const [selectedDependent, setSelectedDependent] = useState({
-		EmployeeId: 1,
-		EmployeeName: 'test',
+		CompanyId: 1,
+		CompanyName: 'test',
 	});
 
 	const displayModal = () => {
@@ -97,9 +96,9 @@ const Employee = (props) => {
 		'Content-Type': 'application/json',
 		Authorization: 'JWT fefege...',
 	};
-	const updateEmployee = (values) => {
+	const updateCompany = (values) => {
 		try {
-			axios.put(process.env.REACT_APP_API + 'employee/' + employee.EmployeeId, {
+			axios.put(process.env.REACT_APP_API + 'company/' + company.CompanyId, {
 				headers: headers,
 				data: values,
 			});
@@ -110,20 +109,20 @@ const Employee = (props) => {
 		<div>
 			<Container>
 				<Tabs
-					defaultActiveKey='employee'
+					defaultActiveKey='company'
 					id='uncontrolled-tab-example'
 					className='mb-3'>
-					<Tab eventKey='employee' title='Employee Information'>
+					<Tab eventKey='company' title='Dependents'>
 						<Row>
-							{!isLoadingEmployee && (
+							{!isLoadingCompany && (
 								<Formik
 									validationSchema={schema}
 									onSubmit={console.log}
 									initialValues={{
-										EmployeeId: employee.EmployeeId,
-										EmployeeFirstName: '',
-										EmployeeLastName: '',
-										EmployeeSsn: '',
+										CompanyId: company.CompanyId,
+										CompanyFirstName: '',
+										CompanyLastName: '',
+										CompanySsn: '',
 										DateOfBirth: '',
 										IsTerminated: false,
 										DateCreated: null,
@@ -140,54 +139,54 @@ const Employee = (props) => {
 										errors,
 										dirty,
 									}) => (
-										<Form noValidate onSubmit={() => updateEmployee(values)}>
+										<Form noValidate onSubmit={() => updateCompany(values)}>
 											{/* {JSON.stringify(errors)} */}
 											<Row className='mb-3'>
 												<Form.Group as={Col} md='3' controlId='validationFormik01'>
 													<Form.Label>First Name</Form.Label>
 													<Form.Control
 														type='text'
-														name='EmployeeFirstName'
-														value={values.EmployeeFirstName}
+														name='CompanyFirstName'
+														value={values.CompanyFirstName}
 														onChange={handleChange}
-														isValid={touched.EmployeeFirstName && !errors.EmployeeFirstName}
+														isValid={touched.CompanyFirstName && !errors.CompanyFirstName}
 														isInvalid={
-															touched.EmployeeFirstName && !!errors.EmployeeFirstName
+															touched.CompanyFirstName && !!errors.CompanyFirstName
 														}
 													/>
 													<Form.Control.Feedback>Looks good!</Form.Control.Feedback>
 													<Form.Control.Feedback type='invalid'>
-														{errors.EmployeeFirstName}
+														{errors.CompanyFirstName}
 													</Form.Control.Feedback>
 												</Form.Group>
 												<Form.Group as={Col} md='3' controlId='validationFormik02'>
 													<Form.Label>Last Name</Form.Label>
 													<Form.Control
 														type='text'
-														name='EmployeeLastName'
-														value={values.EmployeeLastName}
+														name='CompanyLastName'
+														value={values.CompanyLastName}
 														onChange={handleChange}
-														isValid={touched.EmployeeLastName && !errors.EmployeeLastName}
-														isInvalid={touched.EmployeeLastName && !!errors.EmployeeLastName}
+														isValid={touched.CompanyLastName && !errors.CompanyLastName}
+														isInvalid={touched.CompanyLastName && !!errors.CompanyLastName}
 													/>
 													<Form.Control.Feedback>Looks good!</Form.Control.Feedback>
 													<Form.Control.Feedback type='invalid'>
-														{errors.EmployeeLastName}
+														{errors.CompanyLastName}
 													</Form.Control.Feedback>
 												</Form.Group>
 												<Form.Group as={Col} md='3' controlId='validationFormik02'>
-													<Form.Label>Employee SSN</Form.Label>
+													<Form.Label>Company SSN</Form.Label>
 													<Form.Control
 														type='string'
-														name='EmployeeSsn'
-														value={values.EmployeeSsn}
+														name='CompanySsn'
+														value={values.CompanySsn}
 														onChange={handleChange}
-														isValid={touched.EmployeeSsn && !errors.EmployeeSsn}
-														isInvalid={touched.EmployeeSsn && !!errors.EmployeeSsn}
+														isValid={touched.CompanySsn && !errors.CompanySsn}
+														isInvalid={touched.CompanySsn && !!errors.CompanySsn}
 													/>
 													<Form.Control.Feedback>Looks good!</Form.Control.Feedback>
 													<Form.Control.Feedback type='invalid'>
-														{errors.EmployeeSsn}
+														{errors.CompanySsn}
 													</Form.Control.Feedback>
 												</Form.Group>
 												<Form.Group as={Col} md='3' controlId='validationFormik02'>
@@ -210,7 +209,7 @@ const Employee = (props) => {
 												<Form.Group as={Col} md='12' controlId='validationFormik02'>
 													<Form.Check
 														name='IsTerminated'
-														label='Employee is actively employed?'
+														label='Company is actively employed?'
 														onChange={handleChange}
 														isValid={touched.IsTerminated && !errors.IsTerminated}
 														feedback={errors.IsTerminated}
@@ -223,7 +222,9 @@ const Employee = (props) => {
 												<Col>
 													<div className='d-flex justify-content-end'>
 														<div>
-															<Button type='submit'>Save Changes</Button>
+															<Button type='submit'>
+																Save Changes
+															</Button>
 														</div>
 													</div>
 												</Col>
@@ -244,18 +245,9 @@ const Employee = (props) => {
 							</Col>
 						</Row>
 						<br />
-						{dependents.length < 1 && (
-							<Alert variant='info'>
-								<Alert.Heading>Uh-oh</Alert.Heading>
-								<p>
-									Looks like you don't have any dependents created for <b>{employee.EmployeeFirstName + " " + employee.EmployeeLastName  }</b>. Simply,
-									click the "Add Dependent" button to add dependents.
-								</p>								
-							</Alert>
-						)}
 						<Row>
 							<Col>
-								{!isLoadingDependents && dependents.length > 0 && (
+								{!isLoadingDependents && (
 									<table class='table align-middle mb-0 bg-white table-striped'>
 										<thead class='bg-light'>
 											<tr>
@@ -263,16 +255,18 @@ const Employee = (props) => {
 												<th>Last Name</th>
 												<th>Created Date </th>
 												<th>Updated Date</th>
+												<th>Terminated</th>
 												<th></th>
 											</tr>
 										</thead>
 										<tbody>
 											{dependents.map((dep) => (
-												<tr key={dep.DependentId}>
-													<td>{dep.DependentFirstName}</td>
-													<td>{dep.DependentLastName}</td>
+												<tr key={dep.CompanyId}>
+													<td>{dep.CompanyFirstName}</td>
+													<td>{dep.CompanyLastName}</td>
 													<td>{moment(dep.DateCreated).format('MM/DD/YYYY')}</td>
 													<td>{moment(dep.DateUpdated).format('MM/DD/YYYY')}</td>
+													<td>{dep.IsTerminated === true ? 'Yes' : 'False'}</td>
 													<td>
 														<>
 															<button
@@ -284,7 +278,7 @@ const Employee = (props) => {
 															<button
 																type='button'
 																class='btn btn-danger'
-																onClick={() => this.deletedep(dep.DependentId)}>
+																onClick={() => this.deletedep(dep.CompanyId)}>
 																Delete
 															</button>
 														</>
@@ -304,23 +298,22 @@ const Employee = (props) => {
 							</Col>
 						</Row>
 					</Tab>
-					<Tab eventKey='paycheck' title='Paychecks'>
-						<Paychecks employeeId={employee.EmployeeId} />
-					</Tab>				
+					<Tab eventKey='payroll' title='Payroll'>
+						<Payroll/>
+					</Tab>
 				</Tabs>
 			</Container>
 
 			<DependentModal
 				show={modalShow}
-				employeeInfo={selectedDependent}
+				companyInfo={selectedDependent}
 				action={actionType}
 				onHide={modalClose}
-				isEmployee={false}
 			/>
 		</div>
 	);
 };
 
-Employee.propTypes = {};
+Company.propTypes = {};
 
-export default Employee;
+export default Company;

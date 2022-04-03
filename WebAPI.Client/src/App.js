@@ -9,6 +9,8 @@ import {
 	Routes,
 	Route,
 } from 'react-router-dom';
+import Company from './Company/Company';
+import Companies from './Company/Companies';
 
 function App() {
 	return (
@@ -22,6 +24,8 @@ function App() {
 				<Routes>
 					<Route path='/' element={<Home/>} exact></Route>
 					<Route path='/employee/:id' element={<Employee/>}></Route>
+					<Route path='/companies' element={<Companies/>}></Route>
+					<Route path='/company/:id' element={<Company/>}></Route>
 				</Routes>
 			</div>
 		</Router>

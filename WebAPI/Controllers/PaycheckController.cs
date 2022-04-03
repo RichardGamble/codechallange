@@ -27,7 +27,7 @@ namespace WebAPI.Controllers
             _paycheckInterface = paycheckInterface;
         }
 
-        [HttpGet("{empid:int}")]
+        [HttpGet("all/{empid:int}")]
         public async Task<ActionResult<IEnumerable<Paycheck>>> GetPaychecks(int empid)
         {
             var paychecks = await _paycheckInterface.GetPaychecks(empid);
@@ -40,7 +40,7 @@ namespace WebAPI.Controllers
             return Ok(paychecks);
         }
 
-        [HttpGet("{id:int")]
+        [HttpGet("single/{id:int")]
         private async Task<ActionResult<IEnumerable<Paycheck>>> GetPaycheck(int id)
         {
             var paycheck = await _paycheckInterface.GetPaycheck(id);
@@ -53,11 +53,12 @@ namespace WebAPI.Controllers
             return Ok(paycheck);
         }
 
-        //[HttpPost]
-        //public async Task<ActionResult<Paycheck>> GeneratePaycheck(Paycheck pc)
-        //{
-           
-        //}
+        [HttpPost]
+        public async Task<ActionResult> GeneratePaycheck(int id)
+        {
+            var paycheck = await _paycheckInterface.GeneratePaycheck(id);
+            return Ok(paycheck);
+        }
 
 
     }

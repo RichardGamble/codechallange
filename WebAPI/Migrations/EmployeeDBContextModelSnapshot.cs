@@ -21,7 +21,7 @@ namespace WebAPI.Migrations
 
             modelBuilder.Entity("WebAPI.Models.Company", b =>
                 {
-                    b.Property<int>("CompnayId")
+                    b.Property<int>("CompanyId")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int")
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
@@ -29,10 +29,13 @@ namespace WebAPI.Migrations
                     b.Property<string>("CompanyName")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<DateTime?>("CreatedDate")
+                    b.Property<DateTime?>("DateCreated")
                         .HasColumnType("datetime2");
 
-                    b.HasKey("CompnayId");
+                    b.Property<DateTime?>("DateUpdated")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("CompanyId");
 
                     b.ToTable("Companies");
                 });
@@ -116,7 +119,7 @@ namespace WebAPI.Migrations
                         .HasColumnType("int")
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
-                    b.Property<int?>("CompanyCompnayId")
+                    b.Property<int>("CompanyId")
                         .HasColumnType("int");
 
                     b.Property<DateTime?>("DateCreated")
@@ -150,7 +153,7 @@ namespace WebAPI.Migrations
                     b.HasKey("EmployeeId")
                         .HasName("PK__Employee__7AD04F113516F170");
 
-                    b.HasIndex("CompanyCompnayId");
+                    b.HasIndex("CompanyId");
 
                     b.ToTable("Employees");
                 });
@@ -236,9 +239,11 @@ namespace WebAPI.Migrations
 
             modelBuilder.Entity("WebAPI.Models.Employee", b =>
                 {
-                    b.HasOne("WebAPI.Models.Company", null)
+                    b.HasOne("WebAPI.Models.Company", "Company")
                         .WithMany("Employees")
-                        .HasForeignKey("CompanyCompnayId");
+                        .HasForeignKey("CompanyId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("WebAPI.Models.Paycheck", b =>

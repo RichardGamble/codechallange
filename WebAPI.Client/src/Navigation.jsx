@@ -12,9 +12,9 @@ export default function Navigation() {
 						<LinkContainer to='/'>
 							<Nav.Link className='d-inline p-2 bg-dark text-white'>Home</Nav.Link>
 						</LinkContainer>
-						{/* <LinkContainer to='/employee'>
-						<Nav.Link className='d-inline p-2 bg-dark text-white'>Employee</Nav.Link>
-					</LinkContainer> */}
+						<LinkContainer to='/companies'>
+						<Nav.Link className='d-inline p-2 bg-dark text-white'>Companies</Nav.Link>
+					</LinkContainer>
 					</Nav>
 				</Navbar.Collapse>
 			</Container>

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Threading.Tasks;
+using WebAPI.Models.DTOs;
 
 namespace WebAPI.Models
 {
@@ -15,11 +16,12 @@ namespace WebAPI.Models
         }
 
         [Key]
-        public int CompnayId { get; set; }
+        public int CompanyId { get; set; }
         public string CompanyName { get; set; }
-        public DateTime? CreatedDate { get; set; }
+        public DateTime? DateCreated { get; set; }
+        public DateTime? DateUpdated { get; set; }
         public virtual ICollection<Employee> Employees{ get; set; }
-        public virtual ICollection<Payroll> Payrolls { get; set; }
+        public virtual ICollection<Payroll> Payrolls { get; set; }       
     }
 }
 

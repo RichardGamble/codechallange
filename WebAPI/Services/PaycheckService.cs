@@ -31,11 +31,11 @@ namespace WebAPI.Services
             return await _dbContext.Paychecks.FirstOrDefaultAsync(e => e.PaycheckId == id);
         }
 
-        public async void GeneratePaycheck(int id)
+        public async Task<Paycheck> GeneratePaycheck(int id)
         {
             Employee employee = await _employeeInterface.GetEmployee(id);
 
-            decimal grossPayInitial = 2000.00M; //employee gross pay initial
+            decimal grossPay = 2000.00M; //employee gross pay initial
             decimal dependentDeduction = 19.23M; // dependent deduction
             decimal employeeBenefitsCost = 38.46M; //employee benefits cost
             decimal discount = .10M;
@@ -43,6 +43,8 @@ namespace WebAPI.Services
             decimal dependentsDeductions = 0M;
 
             Paycheck paycheck = new Paycheck();
+            paycheck.EmployeeId = employee.EmployeeId;
+            paycheck.GrossPay = grossPay;
             employeeDeductions -= NameDiscount(employee.EmployeeFirstName) ? discount * employeeBenefitsCost : 0;
             List<Deduction> deductions = new List<Deduction>();
 
@@ -52,7 +54,7 @@ namespace WebAPI.Services
                 {
                     Deduction deduction = new Deduction();
                     deduction.Discount = NameDiscount(dependent.DependentFirstName) ? discount * dependentDeduction : 0M;
-                    deduction.Cost -= deduction.Discount;
+                    deduction.Cost = dependentDeduction - deduction.Discount;
                     deduction.Name = dependent.DependentFirstName + " " + dependent.DependentLastName;
                     deduction.PaycheckId = 1;
                     dependentsDeductions += (Decimal)deduction.Cost;
@@ -60,22 +62,24 @@ namespace WebAPI.Services
                 }
             }
 
-            paycheck.EmployeeId = employee.EmployeeId;
-            paycheck.NetPay = grossPayInitial - employeeDeductions - dependentsDeductions;
-
+            paycheck.DeductionsTotal = employeeDeductions + dependentsDeductions;
+            paycheck.NetPay = paycheck.GrossPay - paycheck.DeductionsTotal;
+            paycheck.CreatedDate = DateTime.Now;
+            
             var result = await _dbContext.Paychecks.AddAsync(paycheck);
             await _dbContext.SaveChangesAsync();
 
             if (deductions != null && result!= null) AddDeductions(result.Entity.PaycheckId, deductions);
+            return result.Entity;
         }
 
-        public async void AddDeductions(int paycheckId, List<Deduction> deductions)
+        public  void AddDeductions(int paycheckId, List<Deduction> deductions)
         {
             foreach (Deduction deduction in deductions)
             {
                 deduction.PaycheckId = paycheckId;
-                await _dbContext.Deductions.AddAsync(deduction);
-                await _dbContext.SaveChangesAsync();
+                 _dbContext.Deductions.Add(deduction);
+                 _dbContext.SaveChanges();
             }
         }
 
