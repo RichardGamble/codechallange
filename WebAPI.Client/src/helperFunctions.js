@@ -1,3 +1,5 @@
+import MaksedInput from ''
+
 export function titleCaseWords(words) {
 	let titlecase = '';
 	let altCase = words.split(' ');
@@ -12,5 +14,5 @@ export function titleCaseWords(words) {
 }
 
 export function titleCase(word) {
-	return word.charAt(0).toUpperCase() + word.substr(1).toLowercase().trim();
+	return (word ? word.charAt(0).toUpperCase() + word.substr(1).toLowercase().trim(): "No String Found");
 }

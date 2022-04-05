@@ -38,9 +38,10 @@ const Employee = (props) => {
 	useEffect(() => {
 		var id =
 			location.pathname.split('/')[location.pathname.split('/').length - 1];
+		getCompanies();
 		getEmployee(id);
 		getDependents(id);
-		getCompanies();
+		
 	}, [location]);
 
 	async function getEmployee(id) {
@@ -48,7 +49,10 @@ const Employee = (props) => {
 			const response = await axios.get(
 				process.env.REACT_APP_API + 'employee/' + id
 			);
-			setEmployee(response.data);
+			
+			let employee = response.data;
+			employee.DateOfBirth = moment(employee.DateOfBirth).format('YYYY-MM-DD').toString();
+			setEmployee(response.data);			
 			setIsLoadingEmployee(false);
 			console.log(response);
 		} catch (error) {
@@ -130,7 +134,7 @@ const Employee = (props) => {
 
 			setTimeout(function () {
 				setShowAlert(false);
-			}, 7000);
+			}, 3000);
 		} catch (error) {
 			setSaveStatusCode(error.response.status);
 		}
@@ -164,6 +168,8 @@ const Employee = (props) => {
 										isSubmitting,
 										resetForm,
 										dirty,
+										setFieldValue,
+										setFieldTouched,
 									}) => (
 										<Form noValidate onSubmit={handleSubmit}>
 											<Row className='mb-3'>
@@ -215,7 +221,10 @@ const Employee = (props) => {
 														type='date'
 														name='DateOfBirth'
 														value={values.DateOfBirth}
-														onChange={handleChange}
+														onChange={(e) => {
+															setFieldValue('DateOfBirth', moment(e).format('YYYY-MM-DD'));
+															setFieldTouched('DateOfBirth');
+														}}
 														isValid={touched.DateOfBirth && !errors.DateOfBirth}
 														isInvalid={!!errors.DateOfBirth}
 													/>
@@ -234,7 +243,7 @@ const Employee = (props) => {
 														isInvalid={!!errors.CompanyId}>
 														<option>Select a company</option>{' '}
 														{companies.map((company) => (
-															<option value={company.CompanyId}>{company.CompanyName}</option>
+															<option key ={company.CompanyId} value={company.CompanyId}>{company.CompanyName}</option>
 														))}
 													</Form.Control>
 												</Form.Group>
@@ -257,7 +266,7 @@ const Employee = (props) => {
 													<div className='d-flex justify-content-end'>
 														<div>
 															<Button
-																variant='secondary'
+																variant='outline-secondary'
 																disabled={isSubmitting || !dirty}
 																onClick={() => resetForm()}>
 																Reset
@@ -282,9 +291,7 @@ const Employee = (props) => {
 										onClose={() => setShowAlert(false)}
 										dismissible>
 										<Alert.Heading>Employee has been updated!</Alert.Heading>
-										<p>
-											This notification will close shortly.
-										</p>
+										<p>This notification will close shortly.</p>
 									</Alert>
 								</Col>
 							</Row>

@@ -60,6 +60,19 @@ namespace WebAPI.Controllers
             return Ok(paycheck);
         }
 
+        [HttpGet("payroll/{id:int")]
+        private async Task<ActionResult<IEnumerable<Payroll>>> GetPayroll(int id)
+        {
+            var paycheck = await _paycheckInterface.GetPayroll(id);
+
+            if (paycheck == null)
+            {
+                return NotFound();
+            }
+
+            return Ok(paycheck);
+        }
+
 
     }
 }

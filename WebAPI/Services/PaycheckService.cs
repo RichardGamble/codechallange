@@ -92,26 +92,7 @@ namespace WebAPI.Services
             }
             return false;
         }
-
-        public async Task<Paycheck> CreatePaycheck(Paycheck emp)
-        {
-            var paycheck = new Paycheck
-            {
-                //PaycheckFirstName = emp.PaycheckFirstName,
-                //PaycheckLastName = emp.PaycheckLastName,
-                //DateCreated = DateTime.Now,
-                //DateUpdated = DateTime.Now,
-                //DateOfBirth = emp.DateOfBirth,
-                //PaycheckSsn = emp.PaycheckSsn,
-                //IsTerminated = emp.IsTerminated
-            };
-
-            _dbContext.Paychecks.Add(paycheck);
-            await _dbContext.SaveChangesAsync();
-
-            return paycheck;
-        }
-
+       
         public async Task<Paycheck> UpdatePaycheck(Paycheck emp)
         {
             var paycheck = await _dbContext.Paychecks.FirstOrDefaultAsync(e => e.PaycheckId == emp.PaycheckId);
@@ -165,10 +146,17 @@ namespace WebAPI.Services
         {
             return _dbContext.Paychecks.Any(e => e.PaycheckId == id);
         }
-
-        public Task<Paycheck> AddPaycheck(Paycheck Paycheck)
+       
+        public async Task<IEnumerable<Payroll>> GetPayroll(int id)
         {
-            throw new NotImplementedException();
+            return await _dbContext.Payrolls.Where(p => p.CompanyId == id).ToListAsync();
+        }
+
+        private Payroll CreateNewPayroll(int companyId)
+        {
+
+
+            return new Payroll();
         }
     }
 }

@@ -10,7 +10,7 @@ export const employeeSchema = yup.object().shape({
         .matches(/\d{9}/, 'Must only be numbers')
         .min(9, 'You must have exactly 9 numbers')
         .max(9, 'You must have exactly 9 numbers'),
-    DateOfBirth: yup.date().required("Employee's date of birth is required"),
+    DateOfBirth: yup.string().required("Employee's date of birth is required"),
     IsTerminated: yup.bool().required(),
     CompanyId: yup.number().required(),
 });

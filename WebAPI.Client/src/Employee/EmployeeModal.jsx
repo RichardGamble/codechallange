@@ -6,6 +6,8 @@ import moment from 'moment';
 import { Modal, Button, Row, Col, Form, Alert } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
 import { employeeSchema } from './EmployeeValidation';
+import DatePicker from 'react-datepicker';
+import 'react-datepicker/dist/react-datepicker.css';
 
 const EmployeeModal = (props) => {
 	const axios = require('axios');
@@ -37,7 +39,6 @@ const EmployeeModal = (props) => {
 			setSaveStatusCode(response.status);
 			setShowSuccess(true);
 			setEmployee(response.data);
-			// setEmployee(values);
 		} catch (error) {
 			setSaveStatusCode(error.response.status);
 		}
@@ -61,7 +62,7 @@ const EmployeeModal = (props) => {
 	}
 
 	return (
-		<Modal show={show} closeButton centered size='md'>
+		<Modal show={show} centered size='md'>
 			<Modal.Header>
 				<Modal.Title>Add New Employee</Modal.Title>
 			</Modal.Header>
@@ -81,7 +82,7 @@ const EmployeeModal = (props) => {
 						</div>
 					</Alert>
 				)}
-				{saveStatusCode == 0 && (
+				{saveStatusCode === 0 && (
 					<Formik
 						validationSchema={employeeSchema}
 						onSubmit={(values) => addNewEmpoyee(values)}
@@ -90,7 +91,7 @@ const EmployeeModal = (props) => {
 							EmployeeFirstName: '',
 							EmployeeLastName: '',
 							EmployeeSsn: '',
-							DateOfBirth: '',
+							DateOfBirth: moment().format('YYYY-MM-DD').toString(),
 							CompanyId: '',
 							IsTerminated: false,
 							DateCreated: null,
@@ -105,8 +106,11 @@ const EmployeeModal = (props) => {
 							isValid,
 							errors,
 							isSubmitting,
+							setFieldValue,
+							setFieldTouched,
 						}) => (
 							<Form noValidate onSubmit={handleSubmit}>
+								{/* <Row>{"Values: " + JSON.stringify(values)}</Row> */}
 								<Row className='mb-3'>
 									<Form.Group as={Col} md='6' controlId='validationFormik01'>
 										<Form.Label>First Name</Form.Label>
@@ -158,7 +162,10 @@ const EmployeeModal = (props) => {
 											type='date'
 											name='DateOfBirth'
 											value={values.DateOfBirth}
-											onChange={handleChange}
+											onChange={(e) => {
+												setFieldValue('DateOfBirth', moment(e).format('YYYY-MM-DD'));
+												setFieldTouched('DateOfBirth');
+											}}
 											isValid={touched.DateOfBirth && !errors.DateOfBirth}
 											isInvalid={!!errors.DateOfBirth}
 										/>

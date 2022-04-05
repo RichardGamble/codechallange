@@ -13,7 +13,7 @@ namespace WebAPI.Interfaces
         public Task<Paycheck> GetPaycheck(int id);
         public Task<Paycheck> UpdatePaycheck(Paycheck emp);
         public Task<Paycheck> DeletePaycheck(int id);
-        public Task<Paycheck> AddPaycheck(Paycheck Paycheck);
         public Task<Paycheck> GeneratePaycheck(int id);
+        public Task<IEnumerable<Payroll>> GetPayroll(int id);
     }
 }

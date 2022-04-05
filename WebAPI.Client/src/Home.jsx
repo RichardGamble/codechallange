@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
+
 import { Container, Row, Col, Button, Alert } from 'react-bootstrap';
 import EmployeeModal from './Employee/EmployeeModal';
-import DeleteConfirmationModal from './Employee/DeleteConfirmationModal';
+import DeleteConfirmationModal from '../src/Employee/DeleteConfirmationModal';
 import moment from 'moment';
 import { Link } from 'react-router-dom';
 
