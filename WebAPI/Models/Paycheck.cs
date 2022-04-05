@@ -16,10 +16,11 @@ namespace WebAPI.Models
 
         public int PaycheckId { get; set; }
         public int EmployeeId { get; set; }
-        public DateTime? CreatedDate { get; set; }
         public decimal? GrossPay { get; set; }
         public decimal? DeductionsTotal { get; set; }
         public decimal? NetPay { get; set; }
+        public DateTime? CreatedDate { get; set; }
+
         public virtual Employee Employee { get; set; }
         public virtual ICollection<Deduction> Deductions { get; set; }
     }

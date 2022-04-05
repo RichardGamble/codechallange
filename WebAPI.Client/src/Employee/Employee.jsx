@@ -1,24 +1,23 @@
 import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
-
 import {
 	Modal,
 	Button,
 	Row,
 	Col,
 	Form,
-	InputGroup,
 	Container,
 	Tab,
 	Tabs,
-	Alert
+	Alert,
 } from 'react-bootstrap';
-import DependentModal from './EmployeeModal';
+import DependentModal from './Dependent/DependentModal';
 import Paychecks from './Paychecks';
 import moment from 'moment';
 import { useParams, useLocation } from 'react-router-dom';
 import { Formik } from 'formik';
 import * as yup from 'yup';
+import { employeeSchema } from './EmployeeValidation';
 
 const Employee = (props) => {
 	const axios = require('axios');
@@ -28,15 +27,20 @@ const Employee = (props) => {
 	const [showModal, setShowModal] = useState(false);
 	const [actionType, setActionType] = useState();
 	const [dependents, setDependents] = useState([{}]);
-	const [employee, setEmployee] = useState([{}]);
 	const [isLoadingDependents, setIsLoadingDependents] = useState(true);
 	const [isLoadingEmployee, setIsLoadingEmployee] = useState(true);
+	const [showSuccess, setShowSuccess] = useState(false);
+	const [saveStatusCode, setSaveStatusCode] = useState(0);
+	const [employee, setEmployee] = useState({});
+	const [companies, setCompanies] = useState();
+	const [isLoadingCompanies, setIsLoadingCompanies] = useState(true);
 
 	useEffect(() => {
 		var id =
 			location.pathname.split('/')[location.pathname.split('/').length - 1];
 		getEmployee(id);
 		getDependents(id);
+		getCompanies();
 	}, [location]);
 
 	async function getEmployee(id) {
@@ -63,6 +67,19 @@ const Employee = (props) => {
 			console.error(error);
 		}
 	}
+
+	const getCompanies = async () => {
+		try {
+			const response = await axios.get(
+				process.env.REACT_APP_API + 'company/simple'
+			);
+			setCompanies(response.data);
+			setIsLoadingCompanies(false);
+			console.log(response);
+		} catch (error) {
+			console.error(error);
+		}
+	};
 
 	const schema = yup.object().shape({
 		EmployeeId: yup.string(),
@@ -91,19 +108,32 @@ const Employee = (props) => {
 		setShowModal(true);
 	};
 	const [modalShow, setModalShow] = useState(false);
+	const [showAlert, setShowAlert] = useState(false);
 	let modalClose = () => setModalShow(false);
 
 	const headers = {
-		'Content-Type': 'application/json',
-		Authorization: 'JWT fefege...',
+		'Content-Type': 'application/json; charset=utf-8',
 	};
-	const updateEmployee = (values) => {
+	const updateEmployee = async (values) => {
 		try {
-			axios.put(process.env.REACT_APP_API + 'employee/' + employee.EmployeeId, {
-				headers: headers,
-				data: values,
-			});
-		} catch (error) {}
+			const response = await axios.put(
+				process.env.REACT_APP_API + 'employee/' + employee.EmployeeId,
+				values,
+				{
+					headers: headers,
+				}
+			);
+			setShowAlert(true);
+			setSaveStatusCode(response.status);
+			setShowSuccess(true);
+			setEmployee(response.data);
+
+			setTimeout(function () {
+				setShowAlert(false);
+			}, 7000);
+		} catch (error) {
+			setSaveStatusCode(error.response.status);
+		}
 	};
 
 	return (
@@ -117,19 +147,12 @@ const Employee = (props) => {
 						<Row>
 							{!isLoadingEmployee && (
 								<Formik
-									validationSchema={schema}
-									onSubmit={console.log}
-									initialValues={{
-										EmployeeId: employee.EmployeeId,
-										EmployeeFirstName: '',
-										EmployeeLastName: '',
-										EmployeeSsn: '',
-										DateOfBirth: '',
-										IsTerminated: false,
-										DateCreated: null,
-										Dependents: [],
-										DateUpdated: null,
-									}}>
+									validationSchema={employeeSchema}
+									onSubmit={(values, { resetForm }) => {
+										updateEmployee(values);
+										resetForm({ values });
+									}}
+									initialValues={employee}>
 									{({
 										handleSubmit,
 										handleChange,
@@ -138,12 +161,13 @@ const Employee = (props) => {
 										touched,
 										isValid,
 										errors,
+										isSubmitting,
+										resetForm,
 										dirty,
 									}) => (
-										<Form noValidate onSubmit={() => updateEmployee(values)}>
-											{/* {JSON.stringify(errors)} */}
+										<Form noValidate onSubmit={handleSubmit}>
 											<Row className='mb-3'>
-												<Form.Group as={Col} md='3' controlId='validationFormik01'>
+												<Form.Group as={Col} md='2' controlId='validationFormik01'>
 													<Form.Label>First Name</Form.Label>
 													<Form.Control
 														type='text'
@@ -151,16 +175,13 @@ const Employee = (props) => {
 														value={values.EmployeeFirstName}
 														onChange={handleChange}
 														isValid={touched.EmployeeFirstName && !errors.EmployeeFirstName}
-														isInvalid={
-															touched.EmployeeFirstName && !!errors.EmployeeFirstName
-														}
+														isInvalid={!!errors.EmployeeFirstName}
 													/>
-													<Form.Control.Feedback>Looks good!</Form.Control.Feedback>
 													<Form.Control.Feedback type='invalid'>
 														{errors.EmployeeFirstName}
 													</Form.Control.Feedback>
 												</Form.Group>
-												<Form.Group as={Col} md='3' controlId='validationFormik02'>
+												<Form.Group as={Col} md='2' controlId='validationFormik02'>
 													<Form.Label>Last Name</Form.Label>
 													<Form.Control
 														type='text'
@@ -168,14 +189,13 @@ const Employee = (props) => {
 														value={values.EmployeeLastName}
 														onChange={handleChange}
 														isValid={touched.EmployeeLastName && !errors.EmployeeLastName}
-														isInvalid={touched.EmployeeLastName && !!errors.EmployeeLastName}
+														isInvalid={!!errors.EmployeeLastName}
 													/>
-													<Form.Control.Feedback>Looks good!</Form.Control.Feedback>
 													<Form.Control.Feedback type='invalid'>
 														{errors.EmployeeLastName}
 													</Form.Control.Feedback>
 												</Form.Group>
-												<Form.Group as={Col} md='3' controlId='validationFormik02'>
+												<Form.Group as={Col} md='2' controlId='validationFormik02'>
 													<Form.Label>Employee SSN</Form.Label>
 													<Form.Control
 														type='string'
@@ -183,14 +203,13 @@ const Employee = (props) => {
 														value={values.EmployeeSsn}
 														onChange={handleChange}
 														isValid={touched.EmployeeSsn && !errors.EmployeeSsn}
-														isInvalid={touched.EmployeeSsn && !!errors.EmployeeSsn}
+														isInvalid={!!errors.EmployeeSsn}
 													/>
-													<Form.Control.Feedback>Looks good!</Form.Control.Feedback>
 													<Form.Control.Feedback type='invalid'>
 														{errors.EmployeeSsn}
 													</Form.Control.Feedback>
 												</Form.Group>
-												<Form.Group as={Col} md='3' controlId='validationFormik02'>
+												<Form.Group as={Col} md='2' controlId='validationFormik02'>
 													<Form.Label>Date of Birth</Form.Label>
 													<Form.Control
 														type='date'
@@ -198,19 +217,33 @@ const Employee = (props) => {
 														value={values.DateOfBirth}
 														onChange={handleChange}
 														isValid={touched.DateOfBirth && !errors.DateOfBirth}
-														isInvalid={touched.DateOfBirth && !!errors.DateOfBirth}
+														isInvalid={!!errors.DateOfBirth}
 													/>
-													<Form.Control.Feedback>Looks good!</Form.Control.Feedback>
 													<Form.Control.Feedback type='invalid'>
 														{errors.DateOfBirth}
 													</Form.Control.Feedback>
 												</Form.Group>
+												<Form.Group as={Col} md='4' controlId='validationFormik02'>
+													<Form.Label>Company</Form.Label>
+													<Form.Control
+														as='select'
+														name='CompanyId'
+														value={values.CompanyId}
+														onChange={handleChange}
+														isValid={touched.CompanyId && !errors.CompanyId}
+														isInvalid={!!errors.CompanyId}>
+														<option>Select a company</option>{' '}
+														{companies.map((company) => (
+															<option value={company.CompanyId}>{company.CompanyName}</option>
+														))}
+													</Form.Control>
+												</Form.Group>
 											</Row>
 											<Row className='mb-3'>
-												<Form.Group as={Col} md='12' controlId='validationFormik02'>
+												<Form.Group as={Col} md='8' controlId='validationFormik02'>
 													<Form.Check
 														name='IsTerminated'
-														label='Employee is actively employed?'
+														label='Employee has been terminated?'
 														onChange={handleChange}
 														isValid={touched.IsTerminated && !errors.IsTerminated}
 														feedback={errors.IsTerminated}
@@ -223,7 +256,15 @@ const Employee = (props) => {
 												<Col>
 													<div className='d-flex justify-content-end'>
 														<div>
-															<Button type='submit'>Save Changes</Button>
+															<Button
+																variant='secondary'
+																disabled={isSubmitting || !dirty}
+																onClick={() => resetForm()}>
+																Reset
+															</Button>{' '}
+															<Button type='submit' disabled={isSubmitting || !dirty}>
+																Update Employee
+															</Button>
 														</div>
 													</div>
 												</Col>
@@ -233,6 +274,21 @@ const Employee = (props) => {
 								</Formik>
 							)}
 						</Row>
+						{showAlert && (
+							<Row>
+								<Col>
+									<Alert
+										variant='success'
+										onClose={() => setShowAlert(false)}
+										dismissible>
+										<Alert.Heading>Employee has been updated!</Alert.Heading>
+										<p>
+											This notification will close shortly.
+										</p>
+									</Alert>
+								</Col>
+							</Row>
+						)}
 						<Row>
 							<Col>
 								<button
@@ -248,9 +304,10 @@ const Employee = (props) => {
 							<Alert variant='info'>
 								<Alert.Heading>Uh-oh</Alert.Heading>
 								<p>
-									Looks like you don't have any dependents created for <b>{employee.EmployeeFirstName + " " + employee.EmployeeLastName  }</b>. Simply,
-									click the "Add Dependent" button to add dependents.
-								</p>								
+									Looks like you don't have any dependents created for{' '}
+									<b>{employee.EmployeeFirstName + ' ' + employee.EmployeeLastName}</b>.
+									Simply, click the "Add Dependent" button to add dependents.
+								</p>
 							</Alert>
 						)}
 						<Row>
@@ -306,7 +363,7 @@ const Employee = (props) => {
 					</Tab>
 					<Tab eventKey='paycheck' title='Paychecks'>
 						<Paychecks employeeId={employee.EmployeeId} />
-					</Tab>				
+					</Tab>
 				</Tabs>
 			</Container>
 

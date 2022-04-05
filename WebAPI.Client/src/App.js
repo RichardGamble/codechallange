@@ -1,7 +1,7 @@
 import './App.css';
 
 import Navigation from './Navigation';
-import Employee from './Employee';
+import Employee from './Employee/Employee';
 import Home from './Home';
 
 import {

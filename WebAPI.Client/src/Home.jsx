@@ -1,9 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
-
 import { Container, Row, Col, Button, Alert } from 'react-bootstrap';
-import EmployeeModal from './EmployeeModal';
-import DeleteConfirmationModal from './DeleteConfirmationModal';
+import EmployeeModal from './Employee/EmployeeModal';
+import DeleteConfirmationModal from './Employee/DeleteConfirmationModal';
 import moment from 'moment';
 import { Link } from 'react-router-dom';
 
@@ -20,7 +19,6 @@ const Home = (props) => {
 		getEmployees();
 	}, []);
 
-	// Want to use async/await? Add the `async` keyword to your outer function/method.
 	async function getEmployees() {
 		try {
 			const response = await axios.get(process.env.REACT_APP_API + 'employee');

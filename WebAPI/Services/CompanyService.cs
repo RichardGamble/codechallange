@@ -25,7 +25,7 @@ namespace WebAPI.Services
 
         public async Task<IEnumerable<CompanyDTO>> GetCompaniesSimple()
         {
-            List<Company> companies = await _dbContext.Companies.ToListAsync();
+            List<Company> companies = await _dbContext.Companies.OrderBy(x=>x.CompanyName).ToListAsync();
             List<CompanyDTO> companyDTOs = companies.Select(c => new CompanyDTO(c)).ToList();                    
 
             return companyDTOs;
@@ -71,13 +71,7 @@ namespace WebAPI.Services
 
         public async Task<Company> DeleteCompany(int id)
         {
-
             var company = await _dbContext.Companies.FindAsync(id);
-
-            if (company == null)
-            {
-                return null;
-            }
 
             try
             {

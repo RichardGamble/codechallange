@@ -10,20 +10,17 @@ const DeleteConfirmationModal = (props) => {
 	const { info, show, actionType, onHide, isEmployee } = props;
 	const headers = {
 		'Content-Type': 'application/json',
-		Authorization: 'JWT fefege...',
 	};
 
-	const handleSubmit = (event) => {
+	const handleSubmit = async (event) => {
 		try {
-			const response = axios.delete(
+			const response = await axios.delete(
 				process.env.REACT_APP_API + 'employee/' + info.EmployeeId,
 				{
 					headers: headers,
 				}
 			);
-			console.log(response);
 		} catch (error) {
-			console.error(error);
 		}
 	};
 

@@ -133,9 +133,7 @@ const DependentModal = (props) => {
 										{errors.DateOfBirth}
 									</Form.Control.Feedback>
 								</Form.Group>
-							</Row>
-							
-							</Row>
+							</Row>							
 							<Row className='mb-3'>
 								<Col>
 									<div className='d-flex justify-content-end'>
