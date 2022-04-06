@@ -17,15 +17,12 @@ import Paychecks from './Paychecks';
 import moment from 'moment';
 import { useParams, useLocation } from 'react-router-dom';
 import { Formik } from 'formik';
-import * as yup from 'yup';
 import { employeeSchema } from './EmployeeValidation';
+import DeleteConfirmationModal from './DeleteConfirmationModal';
 
 const Employee = (props) => {
 	const axios = require('axios');
-	let { slug } = useParams();
-	const { employeeInfo, show, onHide } = props;
 	let location = useLocation();
-	const [showModal, setShowModal] = useState(false);
 	const [addMode, setAddMode] = useState();
 	const [dependents, setDependents] = useState([{}]);
 	const [isLoadingDependents, setIsLoadingDependents] = useState(true);
@@ -34,7 +31,18 @@ const Employee = (props) => {
 	const [saveStatusCode, setSaveStatusCode] = useState(0);
 	const [employee, setEmployee] = useState({});
 	const [companies, setCompanies] = useState();
-	const [isLoadingCompanies, setIsLoadingCompanies] = useState(true);
+	const [modalShow, setModalShow] = useState(false);
+	const [showAlert, setShowAlert] = useState(false);
+	const [modalShowDelete, setModalShowDelete] = useState(false);
+	const [company, setCompany] = useState({});
+	const [isLoadingCompany, setIsLoadingCompany] = useState(true);
+
+	const [selectedDependent, setSelectedDependent] = useState(null);
+
+	let modalClose = () => {
+		getDependents(employee.EmployeeId);
+		setModalShow(false);
+	};
 
 	useEffect(() => {
 		var id =
@@ -43,6 +51,12 @@ const Employee = (props) => {
 		getEmployee(id);
 		getDependents(id);
 	}, [location]);
+
+	useEffect(() => {
+		if (employee.CompanyId) {
+			getCompany(employee.CompanyId);
+		}
+	}, [employee]);
 
 	async function getEmployee(id) {
 		try {
@@ -56,7 +70,6 @@ const Employee = (props) => {
 				.toString();
 			setEmployee(response.data);
 			setIsLoadingEmployee(false);
-			console.log(response);
 		} catch (error) {
 			console.error(error);
 		}
@@ -68,7 +81,6 @@ const Employee = (props) => {
 			);
 			setDependents(response.data);
 			setIsLoadingDependents(false);
-			console.log(response);
 		} catch (error) {
 			console.error(error);
 		}
@@ -80,46 +92,36 @@ const Employee = (props) => {
 				process.env.REACT_APP_API + 'company/simple'
 			);
 			setCompanies(response.data);
-			setIsLoadingCompanies(false);
-			console.log(response);
 		} catch (error) {
 			console.error(error);
 		}
 	};
 
-	const schema = yup.object().shape({
-		EmployeeId: yup.string(),
-		EmployeeFirstName: yup
-			.string()
-			.required('Employee First Name is a required field'),
-		EmployeeLastName: yup
-			.string()
-			.required('Employee Last Name is a required field'),
-		EmployeeSsn: yup
-			.string()
-			.required('Employee SSN is a required field')
-			.matches(/\d{9}/, 'Must only be numbers'),
-		DateOfBirth: yup
-			.date()
-			.required('Employee Date of Birth is a required field'),
-		IsTerminated: yup.bool().required(),
-	});
+	async function getCompany(id) {
+		try {
+			const response = await axios.get(
+				process.env.REACT_APP_API + 'company/' + id
+			);
 
-	const [selectedDependent, setSelectedDependent] = useState({
-		EmployeeId: 1,
-		EmployeeName: 'test',
-	});
-
-	const displayModal = () => {
-		setShowModal(true);
-	};
-	const [modalShow, setModalShow] = useState(false);
-	const [showAlert, setShowAlert] = useState(false);
-	let modalClose = () => setModalShow(false);
+			let company = response.data;
+			company.DateCreated = moment(company.DateCreated)
+				.format('YYYY-MM-DD')
+				.toString();
+			company.DateUpdated = moment(company.DateUpdated)
+				.format('YYYY-MM-DD')
+				.toString();
+			setCompany(response.data);
+			setIsLoadingCompany(false);
+			console.log(response);
+		} catch (error) {
+			console.error(error);
+		}
+	}
 
 	const headers = {
 		'Content-Type': 'application/json; charset=utf-8',
 	};
+
 	const updateEmployee = async (values) => {
 		try {
 			const response = await axios.put(
@@ -140,6 +142,11 @@ const Employee = (props) => {
 		} catch (error) {
 			setSaveStatusCode(error.response.status);
 		}
+	};
+
+	let modalCloseDelete = () => {
+		setModalShowDelete(false);
+		getDependents(employee.EmployeeId);
 	};
 
 	return (
@@ -312,6 +319,15 @@ const Employee = (props) => {
 									type='button'
 									class='btn btn-primary'
 									onClick={() => {
+										setSelectedDependent({
+											DependentId: 0,
+											DependentFirstName: '',
+											DependentLastName: '',
+											DependentSsn: '',
+											DateOfBirth: moment().format('YYYY-MM-DD').toString(),
+											DateCreated: null,
+											DateUpdated: null,
+										});
 										setAddMode(true);
 										setModalShow(true);
 									}}>
@@ -357,6 +373,7 @@ const Employee = (props) => {
 																class='btn btn-primary'
 																onClick={() => {
 																	setAddMode(false);
+																	setSelectedDependent(dep);
 																	setModalShow(true);
 																}}>
 																Edit
@@ -365,8 +382,8 @@ const Employee = (props) => {
 																type='button'
 																class='btn btn-danger'
 																onClick={() => {
-																	// setSelectedEmployee(emp);
-																	// setModalShowDelete(true);
+																	setSelectedDependent(dep);
+																	setModalShowDelete(true);
 																}}>
 																Delete
 															</button>
@@ -392,19 +409,30 @@ const Employee = (props) => {
 							<Paychecks
 								employeeId={employee.EmployeeId}
 								companyId={employee.CompanyId}
+								employeeInfo={employee}
+								companyInfo={company}
 							/>
 						)}
 					</Tab>
 				</Tabs>
 			</Container>
-
-			<DependentModal
-				show={modalShow}
-				employeeInfo={selectedDependent}
-				addMode={addMode}
-				onHide={modalClose}
-				employeeId= {employee.EmployeeId}
-			/>
+			{selectedDependent !== null && (
+				<div>
+					<DependentModal
+						show={modalShow}
+						dependentInfo={selectedDependent}
+						addMode={addMode}
+						onHide={modalClose}
+						employeeId={employee.EmployeeId}
+					/>
+					<DeleteConfirmationModal
+						show={modalShowDelete}
+						depInfo={selectedDependent}
+						isEmployee={false}
+						onHide={modalCloseDelete}
+					/>
+				</div>
+			)}
 		</div>
 	);
 };

@@ -23,7 +23,7 @@ namespace WebAPI.Services
 
         public async Task<IEnumerable<Paycheck>> GetPaychecks(int empId)
         {
-            return await _dbContext.Paychecks.Where(p => p.EmployeeId == empId).Include(p => p.Deductions).ToListAsync();
+            return await _dbContext.Paychecks.Where(p => p.EmployeeId == empId).Include(d => d.Deductions).Include(d => d.Payroll).ToListAsync();
         }
 
         public async Task<Paycheck> GetPaycheck(int id)

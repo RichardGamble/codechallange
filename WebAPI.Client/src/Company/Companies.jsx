@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 
 import { Container, Row, Col, Button, Alert } from 'react-bootstrap';
 import CompanyModal from './CompanyModal';
- import DeleteConfirmationModal from './DeleteConfirmationModal';
+import DeleteConfirmationModal from './DeleteConfirmationModal';
 import moment from 'moment';
 import { Link } from 'react-router-dom';
 
@@ -46,7 +46,7 @@ const Companies = (props) => {
 		<div>
 			<Container>
 				<Row>
-					<Col>
+					<Col md={{ span: 8, offset: 2 }}>
 						<button
 							type='button'
 							class='btn btn-primary'
@@ -74,7 +74,7 @@ const Companies = (props) => {
 				)}
 				{companies.length > 0 && (
 					<Row>
-						<Col>
+						<Col md={{ span: 8, offset: 2 }}>
 							{!isLoadingCompanies && (
 								<table class='table align-middle mb-0 bg-white table-striped'>
 									<thead class='bg-light'>
@@ -127,7 +127,7 @@ const Companies = (props) => {
 					</Row>
 				)}
 			</Container>
- 
+
 			<CompanyModal
 				show={modalShow}
 				companyInfo={selectedCompany}

@@ -21,10 +21,6 @@ const CompanyModal = (props) => {
 		'Content-Type': 'application/json; charset=utf-8',
 	};
 
-	// useEffect(() => {
-	// 	getCompanies();
-	// }, []);
-
 	const addNewCompany = async (values) => {
 		try {
 			const response = await axios.post(
@@ -41,19 +37,6 @@ const CompanyModal = (props) => {
 			setSaveStatusCode(error.response.status);
 		}
 	};
-
-	// const getCompanies = async () => {
-	// 	try {
-	// 		const response = await axios.get(
-	// 			process.env.REACT_APP_API + 'company/simple'
-	// 		);
-	// 		setCompanies(response.data);
-	// 		setIsLoadingCompanies(false);
-	// 		console.log(response);
-	// 	} catch (error) {
-	// 		console.error(error);
-	// 	}
-	// };
 
 	const schema = yup.object().shape({
 		CompanyId: yup.number(),
@@ -104,9 +87,6 @@ const CompanyModal = (props) => {
 							isSubmitting,
 						}) => (
 							<Form noValidate onSubmit={handleSubmit}>
-								{JSON.stringify(values)}
-								<br />
-								{'save succeeded: ' + saveStatusCode}
 								<Row className='mb-3'>
 									<Form.Group as={Col} md='12' controlId='validationFormik01'>
 										<Form.Label>Company Name</Form.Label>

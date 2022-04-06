@@ -108,7 +108,6 @@ const EmployeeModal = (props) => {
 							setFieldTouched,
 						}) => (
 							<Form noValidate onSubmit={handleSubmit}>
-								<Row>{'Values: ' + JSON.stringify(values)}</Row>
 								<Row className='mb-3'>
 									<Form.Group as={Col} md='6' controlId='validationFormik01'>
 										<Form.Label>First Name</Form.Label>

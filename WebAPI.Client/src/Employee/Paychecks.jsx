@@ -9,13 +9,11 @@ import { Link } from 'react-router-dom';
 import { useNavigate } from 'react-router-dom';
 
 const Paychecks = (props) => {
-	const { employeeId, companyId } = props;
+	const { employeeId, companyId, employeeInfo, companyInfo  } = props;
 	const axios = require('axios');
 	const navigate = useNavigate();
 	const [modalShow, setModalShow] = useState(false);
-	const [modalShowDelete, setModalShowDelete] = useState(false);
-	const [actionType, setActionType] = useState();
-	const [paychecks, setPaychecks] = useState([{}]);
+	const [paychecks, setPaychecks] = useState({});
 	const [isLoadingPaychecks, setIsLoadingPaychecks] = useState(true);
 	const [selectedPaycheck, setSelectedPaycheck] = useState({});
 
@@ -48,7 +46,7 @@ const Paychecks = (props) => {
 	};
 
 	let modalCloseDelete = () => {
-		setModalShowDelete(false);
+		setModalShow(false);
 		getPaychecks();
 	};
 
@@ -93,22 +91,13 @@ const Paychecks = (props) => {
 												<td>{moment(pay.CreatedDate).format('MM/DD/YYYY')}</td>
 												<td>
 													<>
-														<Link
-															to={{
-																pathname: `/employee/${pay.PaycheckId}`,
-																state: { id: pay.PaycheckId },
-															}}>
-															<Button>View</Button>
-														</Link>{' '}
-														{/* <button
-															type='button'
-															class='btn btn-danger'
+														<Button
 															onClick={() => {
 																setSelectedPaycheck(pay);
-																setModalShowDelete(true);
+																setModalShow(true);
 															}}>
-															Delete
-														</button> */}
+															View
+														</Button>
 													</>
 												</td>
 											</tr>
@@ -130,16 +119,10 @@ const Paychecks = (props) => {
 
 			<PaycheckModal
 				show={modalShow}
-				employeeInfo={selectedPaycheck}
-				action={actionType}
+				paycheckInfo={selectedPaycheck}
+				employeeInfo={employeeInfo}
+				companyInfo={companyInfo}
 				onHide={modalClose}
-			/>
-
-			<DeleteConfirmationModal
-				show={modalShowDelete}
-				info={selectedPaycheck}
-				isPaycheck={true}
-				onHide={modalCloseDelete}
 			/>
 		</div>
 	);

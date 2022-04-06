@@ -18,6 +18,7 @@ import { useParams, useLocation } from 'react-router-dom';
 import { Formik } from 'formik';
 import * as yup from 'yup';
 import { companySchema } from './CompanyValidation';
+import Employees from '../Employee/Employees';
 
 const Company = (props) => {
 	const axios = require('axios');
@@ -29,12 +30,11 @@ const Company = (props) => {
 	const [isLoadingPayperiods, setIsLoadingPayperiods] = useState(true);
 	const [isLoadingCompany, setIsLoadingCompany] = useState(true);
 	const [saveStatusCode, setSaveStatusCode] = useState(0);
-	const [company, setCompany] = useState({});
+	const [company, setCompany] = useState(null);
 	const [payperiods, setPayperiods] = useState();
 	const [errorMessage, setErrorMessage] = useState();
 	const [employees, setEmployees] = useState();
 	const [latestPayperiod, setLatestPayperiod] = useState();
-	
 
 	useEffect(() => {
 		var id =
@@ -70,7 +70,7 @@ const Company = (props) => {
 				process.env.REACT_APP_API + 'company/payroll/' + companyId
 			);
 			setPayperiods(response.data);
-			setLatestPayperiod(response.data[0].PayrollId)
+			setLatestPayperiod(response.data[0].PayrollId);
 			setIsLoadingPayperiods(false);
 			console.log(response);
 		} catch (error) {
@@ -142,7 +142,7 @@ const Company = (props) => {
 			const payrollResponse = await axios.post(
 				process.env.REACT_APP_API + `company/payroll/${company.CompanyId}`
 			);
-			getPayroll(company.CompanyId)
+			getPayroll(company.CompanyId);
 		} catch (error) {
 			setSaveStatusCode(error.response.status);
 		}
@@ -151,163 +151,177 @@ const Company = (props) => {
 	return (
 		<div>
 			<Container>
-				<Row>
-					<Col>
-						<Card>
-							<Card.Body>
-								{!isLoadingCompany && (
-									<Formik
-										enableReinitialize
-										validationSchema={companySchema}
-										onSubmit={(values) => {
-											updateCompany(values);
-										}}
-										initialValues={company}>
-										{({
-											handleSubmit,
-											handleChange,
-											handleBlur,
-											values,
-											touched,
-											isValid,
-											errors,
-											isSubmitting,
-											resetForm,
-											dirty,
-										}) => (
-											<Form noValidate onSubmit={handleSubmit}>
-												<Row>
-													<Form.Group as={Col} md='2' controlId='validationFormik01'>
-														<Form.Label>Company Created</Form.Label>
-														<Form.Control
-															type='date'
-															name='DateCreated'
-															readOnly={true}
-															value={moment(values.DateCreated).format('YYYY-MM-DD')}
-															onChange={handleChange}
-														/>
-													</Form.Group>
-													<Form.Group as={Col} md='2' controlId='validationFormik01'>
-														<Form.Label>Company Updated</Form.Label>
-														<Form.Control
-															type='date'
-															name='DateUpdated'
-															readOnly={true}
-															value={moment(values.DateUpdated).format('YYYY-MM-DD')}
-															onChange={handleChange}
-														/>
-													</Form.Group>
-													<Form.Group as={Col} md='2' controlId='validationFormik01'>
-														<Form.Label>Company Name</Form.Label>
-														<Form.Control
-															type='text'
-															name='CompanyName'
-															value={values.CompanyName}
-															onChange={handleChange}
-															isValid={touched.CompanyName && !errors.CompanyName}
-															isInvalid={!!errors.CompanyName}
-														/>
-														<Form.Control.Feedback type='invalid'>
-															{errors.CompanyName}
-														</Form.Control.Feedback>
-													</Form.Group>
-													<Form.Group
-														as={Col}
-														md='3'
-														className='mt-2'
-														controlId='validationFormik01'>
-														<Form.Label></Form.Label>
-														<div className='d-flex justify-content-end'>
-															<div>
-																<Button
-																	variant='outline-secondary'
-																	disabled={!isSubmitting}
-																	onClick={resetForm}>
-																	Reset
-																</Button>{' '}
-																<Button type='submit' disabled={isSubmitting || !dirty}>
-																	Update Company
-																</Button>
-															</div>
-														</div>
-													</Form.Group>
-												</Row>
-											</Form>
-										)}
-									</Formik>
-								)}
-							</Card.Body>
-						</Card>
-					</Col>
-				</Row>
-				<br />
-				{showAlertSuccess && (
-					<Row>
-						<Col>
-							<Alert
-								variant='success'
-								onClose={() => setShowAlertSuccess(false)}
-								dismissible>
-								<Alert.Heading>Company has been updated!</Alert.Heading>
-							</Alert>
-						</Col>
-					</Row>
-				)}
-				{showAlertError && (
-					<Row>
-						<Col>
-							<Alert
-								variant='danger'
-								onClose={() => setShowAlertError(false)}
-								dismissible>
-								<Alert.Heading>{errorMessage}</Alert.Heading>
-							</Alert>
-						</Col>
-					</Row>
-				)}
-				<br />
-				<Row>
-					<Col>
-						{!isLoadingPayperiods && payperiods.length > 0 && (
-							<table class='table align-middle mb-0 bg-white table-striped'>
-								<thead class='bg-light'>
-									<tr>
-										<th>Created Date</th>
-										<th>Pay Period Start Date</th>
-										<th>Pay Period End Date</th>
-										<th></th>
-									</tr>
-								</thead>
-								<tbody>
-									{payperiods.map((pay) => (
-										<tr key={pay.PayperiodId}>
-											<td>{moment(pay.CreateDate).format('MM/DD/YYYY')}</td>
-											<td>{moment(pay.StartDate).format('MM/DD/YYYY')}</td>
-											<td>{moment(pay.EndDate).format('MM/DD/YYYY')}</td>
-											<td>
-												{employees && (
-													<Button
-														variant='primary'
-														disabled={employees.length < 1 || pay.PayrollId !== latestPayperiod}
-														onClick={() => generatePaychecks(pay.PayrollId)}>
-														Generate Checks
-													</Button>
+				<Tabs
+					defaultActiveKey='company'
+					id='uncontrolled-tab-example'
+					className='mb-3'>
+					<Tab eventKey='company' title='Company Information'>
+						<Row>
+							<Col>
+								<Card>
+									<Card.Body>
+										{!isLoadingCompany && (
+											<Formik
+												enableReinitialize
+												validationSchema={companySchema}
+												onSubmit={(values) => {
+													updateCompany(values);
+												}}
+												initialValues={company}>
+												{({
+													handleSubmit,
+													handleChange,
+													handleBlur,
+													values,
+													touched,
+													isValid,
+													errors,
+													isSubmitting,
+													resetForm,
+													dirty,
+												}) => (
+													<Form noValidate onSubmit={handleSubmit}>
+														<Row>
+															<Form.Group as={Col} md='2' controlId='validationFormik01'>
+																<Form.Label>Company Created</Form.Label>
+																<Form.Control
+																	type='date'
+																	name='DateCreated'
+																	readOnly={true}
+																	value={moment(values.DateCreated).format('YYYY-MM-DD')}
+																	onChange={handleChange}
+																/>
+															</Form.Group>
+															<Form.Group as={Col} md='2' controlId='validationFormik01'>
+																<Form.Label>Company Updated</Form.Label>
+																<Form.Control
+																	type='date'
+																	name='DateUpdated'
+																	readOnly={true}
+																	value={moment(values.DateUpdated).format('YYYY-MM-DD')}
+																	onChange={handleChange}
+																/>
+															</Form.Group>
+															<Form.Group as={Col} md='2' controlId='validationFormik01'>
+																<Form.Label>Company Name</Form.Label>
+																<Form.Control
+																	type='text'
+																	name='CompanyName'
+																	value={values.CompanyName}
+																	onChange={handleChange}
+																	isValid={touched.CompanyName && !errors.CompanyName}
+																	isInvalid={!!errors.CompanyName}
+																/>
+																<Form.Control.Feedback type='invalid'>
+																	{errors.CompanyName}
+																</Form.Control.Feedback>
+															</Form.Group>
+															<Form.Group
+																as={Col}
+																md='3'
+																className='mt-2'
+																controlId='validationFormik01'>
+																<Form.Label></Form.Label>
+																<div className='d-flex justify-content-end'>
+																	<div>
+																		<Button
+																			variant='outline-secondary'
+																			disabled={!isSubmitting}
+																			onClick={resetForm}>
+																			Reset
+																		</Button>{' '}
+																		<Button type='submit' disabled={isSubmitting || !dirty}>
+																			Update Company
+																		</Button>
+																	</div>
+																</div>
+															</Form.Group>
+														</Row>
+													</Form>
 												)}
-											</td>
-										</tr>
-									))}
-								</tbody>
-							</table>
+											</Formik>
+										)}
+									</Card.Body>
+								</Card>
+							</Col>
+						</Row>
+						<br />
+						{showAlertSuccess && (
+							<Row>
+								<Col>
+									<Alert
+										variant='success'
+										onClose={() => setShowAlertSuccess(false)}
+										dismissible>
+										<Alert.Heading>Company has been updated!</Alert.Heading>
+									</Alert>
+								</Col>
+							</Row>
 						)}
-						{isLoadingPayperiods && (
-							<div class='d-flex justify-content-center'>
-								<div class='spinner-border' role='status'>
-									<span class='visually-hidden'>Loading...</span>
-								</div>
-							</div>
+						{showAlertError && (
+							<Row>
+								<Col>
+									<Alert
+										variant='danger'
+										onClose={() => setShowAlertError(false)}
+										dismissible>
+										<Alert.Heading>{errorMessage}</Alert.Heading>
+									</Alert>
+								</Col>
+							</Row>
 						)}
-					</Col>
-				</Row>
+						<br />
+						<Row>
+							<Col>
+								{!isLoadingPayperiods && payperiods.length > 0 && (
+									<table class='table align-middle mb-0 bg-white table-striped'>
+										<thead class='bg-light'>
+											<tr>
+												<th>Created Date</th>
+												<th>Pay Period Start Date</th>
+												<th>Pay Period End Date</th>
+												<th></th>
+											</tr>
+										</thead>
+										<tbody>
+											{payperiods.map((pay) => (
+												<tr key={pay.PayperiodId}>
+													<td>{moment(pay.CreateDate).format('MM/DD/YYYY')}</td>
+													<td>{moment(pay.StartDate).format('MM/DD/YYYY')}</td>
+													<td>{moment(pay.EndDate).format('MM/DD/YYYY')}</td>
+													<td>
+														{employees && (
+															<Button
+																variant='primary'
+																disabled={
+																	employees.length < 1 || pay.PayrollId !== latestPayperiod
+																}
+																onClick={() => generatePaychecks(pay.PayrollId)}>
+																Generate Checks
+															</Button>
+														)}
+													</td>
+												</tr>
+											))}
+										</tbody>
+									</table>
+								)}
+								{isLoadingPayperiods && (
+									<div class='d-flex justify-content-center'>
+										<div class='spinner-border' role='status'>
+											<span class='visually-hidden'>Loading...</span>
+										</div>
+									</div>
+								)}
+							</Col>
+						</Row>
+					</Tab>
+					{company && (
+						<Tab eventKey='employees' title='Employees'>
+							<Employees companyId={company.CompanyId} />
+						</Tab>
+					)}
+				</Tabs>
 			</Container>
 		</div>
 	);
