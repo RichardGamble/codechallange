@@ -21,9 +21,9 @@ const CompanyModal = (props) => {
 		'Content-Type': 'application/json; charset=utf-8',
 	};
 
-	useEffect(() => {
-		getCompanies();
-	}, []);
+	// useEffect(() => {
+	// 	getCompanies();
+	// }, []);
 
 	const addNewCompany = async (values) => {
 		try {
@@ -42,18 +42,18 @@ const CompanyModal = (props) => {
 		}
 	};
 
-	const getCompanies = async () => {
-		try {
-			const response = await axios.get(
-				process.env.REACT_APP_API + 'company/simple'
-			);
-			setCompanies(response.data);
-			setIsLoadingCompanies(false);
-			console.log(response);
-		} catch (error) {
-			console.error(error);
-		}
-	};
+	// const getCompanies = async () => {
+	// 	try {
+	// 		const response = await axios.get(
+	// 			process.env.REACT_APP_API + 'company/simple'
+	// 		);
+	// 		setCompanies(response.data);
+	// 		setIsLoadingCompanies(false);
+	// 		console.log(response);
+	// 	} catch (error) {
+	// 		console.error(error);
+	// 	}
+	// };
 
 	const schema = yup.object().shape({
 		CompanyId: yup.number(),

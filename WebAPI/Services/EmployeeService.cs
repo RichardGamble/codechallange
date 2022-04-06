@@ -25,6 +25,10 @@ namespace WebAPI.Services
         {
             return await _dbContext.Employees.OrderBy(e=>e.EmployeeLastName).ToListAsync();
         }
+        public async Task<IEnumerable<Employee>> GetEmployees(int companyId)
+        {
+            return await _dbContext.Employees.Where( c=>c.CompanyId == companyId).OrderBy(e => e.EmployeeLastName).ToListAsync();
+        }
 
         public async Task<Employee> GetEmployee(int id)
         {

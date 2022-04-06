@@ -73,7 +73,7 @@ namespace WebAPI.Controllers
 
             if (dependentToUpdate == null)
             {
-                return NotFound($"Eependent with Id = {id} not found");
+                return NotFound($"Dependent with Id = {id} not found");
             }
 
             return await _dependentInterface.UpdateDependent(dependent);

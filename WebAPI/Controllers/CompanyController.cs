@@ -67,6 +67,12 @@ namespace WebAPI.Controllers
                 return BadRequest();
             }
 
+            var companyNameExists = await _companyInterface.CompanyNameExists(company);
+            if (companyNameExists)
+            {
+                return BadRequest($"Company name: {company.CompanyName} already exists");
+            }
+
             var createdCompany = await _companyInterface.AddCompany(company);
 
             return CreatedAtAction(nameof(GetCompany), 
@@ -89,6 +95,12 @@ namespace WebAPI.Controllers
                 return NotFound($"Company with Id = {id} not found");
             }
 
+            var companyNameExists = await _companyInterface.CompanyNameExists(company);
+            if (companyNameExists)
+            {
+                return BadRequest($"Company name: {company.CompanyName} already exists");
+            }
+
             return await _companyInterface.UpdateCompany(company);
         }
 
@@ -108,5 +120,30 @@ namespace WebAPI.Controllers
 
         }
 
+        [HttpGet("payroll/{id:int}")]
+        public async Task<ActionResult<IEnumerable<Payroll>>> GetAllPayroll(int id)
+        {
+            var payrolls = await _companyInterface.GetAllPayroll(id);
+
+            if (payrolls == null)
+            {
+                return NotFound();
+            }
+
+            return Ok(payrolls);
+        }
+
+        [HttpPost("payroll/{id:int}")]
+        public async Task<ActionResult<IEnumerable<Payroll>>> CreatePayroll(int id)
+        {
+            var payroll = await _companyInterface.CreateNewPayroll(id);
+
+            if (payroll == null)
+            {
+                return NotFound();
+            }
+
+            return Ok(payroll);
+        }
     }
 }

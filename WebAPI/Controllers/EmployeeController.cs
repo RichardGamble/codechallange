@@ -32,6 +32,14 @@ namespace WebAPI.Controllers
             return Ok(employees);
         }
 
+        [HttpGet("company/{id:int}")]
+        public async Task<ActionResult<IEnumerable<Employee>>> GetEmployees(int id)
+        {
+            var employees = await _employeeInterface.GetEmployees(id);
+            
+            return Ok(employees);
+        }
+
         [HttpGet("{id}")]
         public async Task<ActionResult<Employee>> GetEmployee(int id)
         {

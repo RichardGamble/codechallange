@@ -1,12 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { Formik } from 'formik';
-import * as yup from 'yup';
 import moment from 'moment';
 import { Modal, Button, Row, Col, Form, Alert } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
 import { employeeSchema } from './EmployeeValidation';
-import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 
 const EmployeeModal = (props) => {
@@ -110,7 +108,7 @@ const EmployeeModal = (props) => {
 							setFieldTouched,
 						}) => (
 							<Form noValidate onSubmit={handleSubmit}>
-								{/* <Row>{"Values: " + JSON.stringify(values)}</Row> */}
+								<Row>{'Values: ' + JSON.stringify(values)}</Row>
 								<Row className='mb-3'>
 									<Form.Group as={Col} md='6' controlId='validationFormik01'>
 										<Form.Label>First Name</Form.Label>
@@ -162,10 +160,7 @@ const EmployeeModal = (props) => {
 											type='date'
 											name='DateOfBirth'
 											value={values.DateOfBirth}
-											onChange={(e) => {
-												setFieldValue('DateOfBirth', moment(e).format('YYYY-MM-DD'));
-												setFieldTouched('DateOfBirth');
-											}}
+											onChange={handleChange}
 											isValid={touched.DateOfBirth && !errors.DateOfBirth}
 											isInvalid={!!errors.DateOfBirth}
 										/>

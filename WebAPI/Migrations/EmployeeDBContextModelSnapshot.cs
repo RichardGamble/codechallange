@@ -169,21 +169,26 @@ namespace WebAPI.Migrations
                         .HasColumnType("datetime2");
 
                     b.Property<decimal?>("DeductionsTotal")
-                        .HasColumnType("numeric(18, 0)");
+                        .HasColumnType("numeric(18, 2)");
 
                     b.Property<int>("EmployeeId")
                         .HasColumnType("int");
 
                     b.Property<decimal?>("GrossPay")
-                        .HasColumnType("numeric(18, 0)");
+                        .HasColumnType("numeric(18, 2)");
 
                     b.Property<decimal?>("NetPay")
-                        .HasColumnType("numeric(18, 0)");
+                        .HasColumnType("numeric(18, 2)");
+
+                    b.Property<int>("PayrollId")
+                        .HasColumnType("int");
 
                     b.HasKey("PaycheckId")
                         .HasName("PK__Paycheck__E1043DFE65C7B3C5");
 
                     b.HasIndex("EmployeeId");
+
+                    b.HasIndex("PayrollId");
 
                     b.ToTable("Paychecks");
                 });
@@ -203,9 +208,6 @@ namespace WebAPI.Migrations
 
                     b.Property<DateTime?>("EndDate")
                         .HasColumnType("datetime2");
-
-                    b.Property<int>("PayPeriod")
-                        .HasColumnType("int");
 
                     b.Property<DateTime?>("StartDate")
                         .HasColumnType("datetime2");
@@ -252,6 +254,12 @@ namespace WebAPI.Migrations
                         .WithMany("Paychecks")
                         .HasForeignKey("EmployeeId")
                         .HasConstraintName("FK_Paycheck_Employees")
+                        .OnDelete(DeleteBehavior.NoAction)
+                        .IsRequired();
+
+                    b.HasOne("WebAPI.Models.Payroll", "Payroll")
+                        .WithMany("Paychecks")
+                        .HasForeignKey("PayrollId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });

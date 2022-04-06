@@ -53,26 +53,11 @@ namespace WebAPI.Controllers
             return Ok(paycheck);
         }
 
-        [HttpPost]
-        public async Task<ActionResult> GeneratePaycheck(int id)
+        [HttpPost("generatechecks/{compid:int}/{payrollid:int}")]
+        public async Task<ActionResult> GeneratePaychecks(int compid, int payrollId)
         {
-            var paycheck = await _paycheckInterface.GeneratePaycheck(id);
+            var paycheck = await _paycheckInterface.GeneratePaychecks(compid, payrollId);
             return Ok(paycheck);
         }
-
-        [HttpGet("payroll/{id:int")]
-        private async Task<ActionResult<IEnumerable<Payroll>>> GetPayroll(int id)
-        {
-            var paycheck = await _paycheckInterface.GetPayroll(id);
-
-            if (paycheck == null)
-            {
-                return NotFound();
-            }
-
-            return Ok(paycheck);
-        }
-
-
     }
 }

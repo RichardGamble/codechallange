@@ -6,10 +6,12 @@ import PaycheckModal from './PaycheckModal';
 import DeleteConfirmationModal from './DeleteConfirmationModal';
 import moment from 'moment';
 import { Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 
 const Paychecks = (props) => {
-	const { employeeId } = props;
+	const { employeeId, companyId } = props;
 	const axios = require('axios');
+	const navigate = useNavigate();
 	const [modalShow, setModalShow] = useState(false);
 	const [modalShowDelete, setModalShowDelete] = useState(false);
 	const [actionType, setActionType] = useState();
@@ -21,18 +23,23 @@ const Paychecks = (props) => {
 		getPaychecks(employeeId);
 	}, [employeeId]);
 
-	// Want to use async/await? Add the `async` keyword to your outer function/method.
-	async function getPaychecks() {
-		try {
-			const response = await axios.get(
-				process.env.REACT_APP_API + 'paycheck/all/' + employeeId
-			);
-			setPaychecks(response.data);
-			setIsLoadingPaychecks(false);
-			console.log(response);
-		} catch (error) {
-			console.error(error);
+	async function getPaychecks(employeeId) {
+		if (employeeId) {
+			try {
+				const response = await axios.get(
+					process.env.REACT_APP_API + 'paycheck/all/' + employeeId
+				);
+				setPaychecks(response.data);
+				setIsLoadingPaychecks(false);
+				console.log(response);
+			} catch (error) {
+				console.error(error);
+			}
 		}
+	}
+
+	function handleClickNavigate() {
+		navigate('/company/' + companyId);
 	}
 
 	let modalClose = () => {
@@ -48,31 +55,16 @@ const Paychecks = (props) => {
 	return (
 		<div>
 			<Container>
-				<Row>
-					<Col>
-						<button
-							type='button'
-							class='btn btn-primary'
-							onClick={() => setModalShow(true)}>
-							Add Paycheck
-						</button>
-					</Col>
-				</Row>
-				<br />
-
 				{(paychecks.length < 1 || !paychecks) && (
-					<Alert variant='success'>
-						<Alert.Heading>Hi and welcome to Paymentum</Alert.Heading>
+					<Alert variant='info'>
+						<Alert.Heading>Uh-oh</Alert.Heading>
 						<p>
-							Looks like you don't have any paychecks created in the system. Simply,
-							click the "Add Paycheck" button to begin using this application.
+							Looks like there are no paychecks created in the system. Simply, navigate
+							to the companies page to generate a paycheck.
 						</p>
-						<hr />
-						<p className='mb-0'>
-							This application was built to simulate a real-world environment where
-							employers input paychecks and their dependents, and get a preview of the
-							costs.
-						</p>
+						<div className='d-flex justify-content-end'>
+							<Button onClick={() => handleClickNavigate()}>Take me there</Button>
+						</div>
 					</Alert>
 				)}
 

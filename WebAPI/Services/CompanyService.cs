@@ -25,8 +25,8 @@ namespace WebAPI.Services
 
         public async Task<IEnumerable<CompanyDTO>> GetCompaniesSimple()
         {
-            List<Company> companies = await _dbContext.Companies.OrderBy(x=>x.CompanyName).ToListAsync();
-            List<CompanyDTO> companyDTOs = companies.Select(c => new CompanyDTO(c)).ToList();                    
+            List<Company> companies = await _dbContext.Companies.OrderBy(x => x.CompanyName).ToListAsync();
+            List<CompanyDTO> companyDTOs = companies.Select(c => new CompanyDTO(c)).ToList();
 
             return companyDTOs;
         }
@@ -42,8 +42,13 @@ namespace WebAPI.Services
             company.DateUpdated = DateTime.Now;
             var result = await _dbContext.Companies.AddAsync(company);
             await _dbContext.SaveChangesAsync();
-            return result.Entity;
-        }       
+
+            await CreateNewPayroll(result.Entity.CompanyId);
+            _dbContext.SaveChanges();
+
+            var companyWithPayroll = await GetCompany(result.Entity.CompanyId);
+            return companyWithPayroll;
+        }
 
         public async Task<Company> UpdateCompany(Company emp)
         {
@@ -54,7 +59,7 @@ namespace WebAPI.Services
                 return null;
             }
 
-            company = emp;
+            company.CompanyName = emp.CompanyName;
             company.DateUpdated = DateTime.Now;
 
             try
@@ -88,5 +93,40 @@ namespace WebAPI.Services
         {
             return _dbContext.Companies.Any(e => e.CompanyId == id);
         }
+
+        #region Payroll
+        public async Task<IEnumerable<Payroll>> GetAllPayroll(int id)
+        {
+            List<Payroll> payrolls = await _dbContext.Payrolls.Where(p => p.CompanyId == id).OrderByDescending(pr => pr.PayrollId).ToListAsync();
+            return payrolls;
+        }
+
+        public async Task<Payroll> CreateNewPayroll(int companyId)
+        {
+            Payroll latestPayroll = _dbContext.Payrolls.Where(p => p.CompanyId == companyId).OrderByDescending(d => d.PayrollId).FirstOrDefault();
+            Payroll payroll = new Payroll();
+            payroll.CompanyId = companyId;
+            payroll.CreatedDate = DateTime.Now;
+
+            if (latestPayroll == null)
+            {
+                payroll.StartDate = DateTime.Now.Date;
+                payroll.EndDate = payroll.StartDate.Value.AddDays(13);
+            }
+            else
+            {
+                payroll.StartDate = latestPayroll.EndDate.Value.AddDays(1);
+                payroll.EndDate = payroll.StartDate.Value.AddDays(13);
+            }
+            var result = await _dbContext.Payrolls.AddAsync(payroll);
+            await _dbContext.SaveChangesAsync();
+            return result.Entity;
+        }
+
+        public async Task<bool> CompanyNameExists(Company company)
+        {
+            return await _dbContext.Companies.AnyAsync(e => e.CompanyName == company.CompanyName);
+        }
+        #endregion
     }
 }

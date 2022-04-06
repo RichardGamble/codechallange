@@ -10,6 +10,7 @@ import {
 	Tab,
 	Tabs,
 	Alert,
+	Card,
 } from 'react-bootstrap';
 import DependentModal from './Dependent/DependentModal';
 import Paychecks from './Paychecks';
@@ -25,7 +26,7 @@ const Employee = (props) => {
 	const { employeeInfo, show, onHide } = props;
 	let location = useLocation();
 	const [showModal, setShowModal] = useState(false);
-	const [actionType, setActionType] = useState();
+	const [addMode, setAddMode] = useState();
 	const [dependents, setDependents] = useState([{}]);
 	const [isLoadingDependents, setIsLoadingDependents] = useState(true);
 	const [isLoadingEmployee, setIsLoadingEmployee] = useState(true);
@@ -41,7 +42,6 @@ const Employee = (props) => {
 		getCompanies();
 		getEmployee(id);
 		getDependents(id);
-		
 	}, [location]);
 
 	async function getEmployee(id) {
@@ -49,10 +49,12 @@ const Employee = (props) => {
 			const response = await axios.get(
 				process.env.REACT_APP_API + 'employee/' + id
 			);
-			
+
 			let employee = response.data;
-			employee.DateOfBirth = moment(employee.DateOfBirth).format('YYYY-MM-DD').toString();
-			setEmployee(response.data);			
+			employee.DateOfBirth = moment(employee.DateOfBirth)
+				.format('YYYY-MM-DD')
+				.toString();
+			setEmployee(response.data);
 			setIsLoadingEmployee(false);
 			console.log(response);
 		} catch (error) {
@@ -149,140 +151,148 @@ const Employee = (props) => {
 					className='mb-3'>
 					<Tab eventKey='employee' title='Employee Information'>
 						<Row>
-							{!isLoadingEmployee && (
-								<Formik
-									validationSchema={employeeSchema}
-									onSubmit={(values, { resetForm }) => {
-										updateEmployee(values);
-										resetForm({ values });
-									}}
-									initialValues={employee}>
-									{({
-										handleSubmit,
-										handleChange,
-										handleBlur,
-										values,
-										touched,
-										isValid,
-										errors,
-										isSubmitting,
-										resetForm,
-										dirty,
-										setFieldValue,
-										setFieldTouched,
-									}) => (
-										<Form noValidate onSubmit={handleSubmit}>
-											<Row className='mb-3'>
-												<Form.Group as={Col} md='2' controlId='validationFormik01'>
-													<Form.Label>First Name</Form.Label>
-													<Form.Control
-														type='text'
-														name='EmployeeFirstName'
-														value={values.EmployeeFirstName}
-														onChange={handleChange}
-														isValid={touched.EmployeeFirstName && !errors.EmployeeFirstName}
-														isInvalid={!!errors.EmployeeFirstName}
-													/>
-													<Form.Control.Feedback type='invalid'>
-														{errors.EmployeeFirstName}
-													</Form.Control.Feedback>
-												</Form.Group>
-												<Form.Group as={Col} md='2' controlId='validationFormik02'>
-													<Form.Label>Last Name</Form.Label>
-													<Form.Control
-														type='text'
-														name='EmployeeLastName'
-														value={values.EmployeeLastName}
-														onChange={handleChange}
-														isValid={touched.EmployeeLastName && !errors.EmployeeLastName}
-														isInvalid={!!errors.EmployeeLastName}
-													/>
-													<Form.Control.Feedback type='invalid'>
-														{errors.EmployeeLastName}
-													</Form.Control.Feedback>
-												</Form.Group>
-												<Form.Group as={Col} md='2' controlId='validationFormik02'>
-													<Form.Label>Employee SSN</Form.Label>
-													<Form.Control
-														type='string'
-														name='EmployeeSsn'
-														value={values.EmployeeSsn}
-														onChange={handleChange}
-														isValid={touched.EmployeeSsn && !errors.EmployeeSsn}
-														isInvalid={!!errors.EmployeeSsn}
-													/>
-													<Form.Control.Feedback type='invalid'>
-														{errors.EmployeeSsn}
-													</Form.Control.Feedback>
-												</Form.Group>
-												<Form.Group as={Col} md='2' controlId='validationFormik02'>
-													<Form.Label>Date of Birth</Form.Label>
-													<Form.Control
-														type='date'
-														name='DateOfBirth'
-														value={values.DateOfBirth}
-														onChange={(e) => {
-															setFieldValue('DateOfBirth', moment(e).format('YYYY-MM-DD'));
-															setFieldTouched('DateOfBirth');
-														}}
-														isValid={touched.DateOfBirth && !errors.DateOfBirth}
-														isInvalid={!!errors.DateOfBirth}
-													/>
-													<Form.Control.Feedback type='invalid'>
-														{errors.DateOfBirth}
-													</Form.Control.Feedback>
-												</Form.Group>
-												<Form.Group as={Col} md='4' controlId='validationFormik02'>
-													<Form.Label>Company</Form.Label>
-													<Form.Control
-														as='select'
-														name='CompanyId'
-														value={values.CompanyId}
-														onChange={handleChange}
-														isValid={touched.CompanyId && !errors.CompanyId}
-														isInvalid={!!errors.CompanyId}>
-														<option>Select a company</option>{' '}
-														{companies.map((company) => (
-															<option key ={company.CompanyId} value={company.CompanyId}>{company.CompanyName}</option>
-														))}
-													</Form.Control>
-												</Form.Group>
-											</Row>
-											<Row className='mb-3'>
-												<Form.Group as={Col} md='8' controlId='validationFormik02'>
-													<Form.Check
-														name='IsTerminated'
-														label='Employee has been terminated?'
-														onChange={handleChange}
-														isValid={touched.IsTerminated && !errors.IsTerminated}
-														feedback={errors.IsTerminated}
-														feedbackType='invalid'
-														id='validationFormik0'
-													/>
-												</Form.Group>
-											</Row>
-											<Row className='mb-3'>
-												<Col>
-													<div className='d-flex justify-content-end'>
-														<div>
-															<Button
-																variant='outline-secondary'
-																disabled={isSubmitting || !dirty}
-																onClick={() => resetForm()}>
-																Reset
-															</Button>{' '}
-															<Button type='submit' disabled={isSubmitting || !dirty}>
-																Update Employee
-															</Button>
-														</div>
-													</div>
-												</Col>
-											</Row>
-										</Form>
-									)}
-								</Formik>
-							)}
+							<Col>
+								{!isLoadingEmployee && (
+									<Card>
+										<Card.Body>
+											<Formik
+												validationSchema={employeeSchema}
+												onSubmit={(values, { resetForm }) => {
+													updateEmployee(values);
+													resetForm({ values });
+												}}
+												initialValues={employee}>
+												{({
+													handleSubmit,
+													handleChange,
+													handleBlur,
+													values,
+													touched,
+													isValid,
+													errors,
+													isSubmitting,
+													resetForm,
+													dirty,
+													setFieldValue,
+													setFieldTouched,
+												}) => (
+													<Form noValidate onSubmit={handleSubmit}>
+														<Row className='mb-3'>
+															<Form.Group as={Col} md='2' controlId='validationFormik01'>
+																<Form.Label>First Name</Form.Label>
+																<Form.Control
+																	type='text'
+																	name='EmployeeFirstName'
+																	value={values.EmployeeFirstName}
+																	onChange={handleChange}
+																	isValid={
+																		touched.EmployeeFirstName && !errors.EmployeeFirstName
+																	}
+																	isInvalid={!!errors.EmployeeFirstName}
+																/>
+																<Form.Control.Feedback type='invalid'>
+																	{errors.EmployeeFirstName}
+																</Form.Control.Feedback>
+															</Form.Group>
+															<Form.Group as={Col} md='2' controlId='validationFormik02'>
+																<Form.Label>Last Name</Form.Label>
+																<Form.Control
+																	type='text'
+																	name='EmployeeLastName'
+																	value={values.EmployeeLastName}
+																	onChange={handleChange}
+																	isValid={touched.EmployeeLastName && !errors.EmployeeLastName}
+																	isInvalid={!!errors.EmployeeLastName}
+																/>
+																<Form.Control.Feedback type='invalid'>
+																	{errors.EmployeeLastName}
+																</Form.Control.Feedback>
+															</Form.Group>
+															<Form.Group as={Col} md='2' controlId='validationFormik02'>
+																<Form.Label>Employee SSN</Form.Label>
+																<Form.Control
+																	type='string'
+																	name='EmployeeSsn'
+																	value={values.EmployeeSsn}
+																	onChange={handleChange}
+																	isValid={touched.EmployeeSsn && !errors.EmployeeSsn}
+																	isInvalid={!!errors.EmployeeSsn}
+																/>
+																<Form.Control.Feedback type='invalid'>
+																	{errors.EmployeeSsn}
+																</Form.Control.Feedback>
+															</Form.Group>
+															<Form.Group as={Col} md='2' controlId='validationFormik02'>
+																<Form.Label>Date of Birth</Form.Label>
+																<Form.Control
+																	type='date'
+																	name='DateOfBirth'
+																	value={values.DateOfBirth}
+																	onChange={handleChange}
+																	isValid={touched.DateOfBirth && !errors.DateOfBirth}
+																	isInvalid={!!errors.DateOfBirth}
+																/>
+																<Form.Control.Feedback type='invalid'>
+																	{errors.DateOfBirth}
+																</Form.Control.Feedback>
+															</Form.Group>
+															<Form.Group as={Col} md='4' controlId='validationFormik02'>
+																<Form.Label>Company</Form.Label>
+																<Form.Control
+																	as='select'
+																	name='CompanyId'
+																	value={values.CompanyId}
+																	onChange={handleChange}
+																	isValid={touched.CompanyId && !errors.CompanyId}
+																	isInvalid={!!errors.CompanyId}>
+																	<option>Select a company</option>{' '}
+																	{companies.map((company) => (
+																		<option key={company.CompanyId} value={company.CompanyId}>
+																			{company.CompanyName}
+																		</option>
+																	))}
+																</Form.Control>
+															</Form.Group>
+														</Row>
+														<Row className='mb-3'>
+															<Form.Group as={Col} md='8' controlId='validationFormik02'>
+																<Form.Check
+																	name='IsTerminated'
+																	label='Employee has been terminated?'
+																	onChange={handleChange}
+																	isValid={touched.IsTerminated && !errors.IsTerminated}
+																	feedback={errors.IsTerminated}
+																	feedbackType='invalid'
+																	id='validationFormik0'
+																/>
+															</Form.Group>
+														</Row>
+														<Row>
+															<Col>
+																<div className='d-flex justify-content-end'>
+																	<div>
+																		<Button
+																			variant='outline-secondary'
+																			disabled={isSubmitting || !dirty}
+																			onClick={() => resetForm()}>
+																			Reset
+																		</Button>{' '}
+																		<Button type='submit' disabled={isSubmitting || !dirty}>
+																			Update Employee
+																		</Button>
+																	</div>
+																</div>
+															</Col>
+														</Row>
+													</Form>
+												)}
+											</Formik>
+										</Card.Body>
+									</Card>
+								)}
+							</Col>
 						</Row>
+						<br />
 						{showAlert && (
 							<Row>
 								<Col>
@@ -301,7 +311,10 @@ const Employee = (props) => {
 								<button
 									type='button'
 									class='btn btn-primary'
-									onClick={() => displayModal()}>
+									onClick={() => {
+										setAddMode(true);
+										setModalShow(true);
+									}}>
 									Add Dependent
 								</button>
 							</Col>
@@ -342,13 +355,19 @@ const Employee = (props) => {
 															<button
 																type='button'
 																class='btn btn-primary'
-																onClick={() => setModalShow(true)}>
+																onClick={() => {
+																	setAddMode(false);
+																	setModalShow(true);
+																}}>
 																Edit
 															</button>{' '}
 															<button
 																type='button'
 																class='btn btn-danger'
-																onClick={() => this.deletedep(dep.DependentId)}>
+																onClick={() => {
+																	// setSelectedEmployee(emp);
+																	// setModalShowDelete(true);
+																}}>
 																Delete
 															</button>
 														</>
@@ -369,7 +388,12 @@ const Employee = (props) => {
 						</Row>
 					</Tab>
 					<Tab eventKey='paycheck' title='Paychecks'>
-						<Paychecks employeeId={employee.EmployeeId} />
+						{employee && (
+							<Paychecks
+								employeeId={employee.EmployeeId}
+								companyId={employee.CompanyId}
+							/>
+						)}
 					</Tab>
 				</Tabs>
 			</Container>
@@ -377,9 +401,9 @@ const Employee = (props) => {
 			<DependentModal
 				show={modalShow}
 				employeeInfo={selectedDependent}
-				action={actionType}
+				addMode={addMode}
 				onHide={modalClose}
-				isEmployee={false}
+				employeeId= {employee.EmployeeId}
 			/>
 		</div>
 	);

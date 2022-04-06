@@ -10,6 +10,7 @@ import {
 	Tab,
 	Tabs,
 	Alert,
+	Card,
 } from 'react-bootstrap';
 import Payroll from './Payroll';
 import moment from 'moment';
@@ -27,18 +28,20 @@ const Company = (props) => {
 	const [actionType, setActionType] = useState();
 	const [isLoadingPayperiods, setIsLoadingPayperiods] = useState(true);
 	const [isLoadingCompany, setIsLoadingCompany] = useState(true);
-	const [showSuccess, setShowSuccess] = useState(false);
 	const [saveStatusCode, setSaveStatusCode] = useState(0);
 	const [company, setCompany] = useState({});
-	const [companies, setCompanies] = useState();
 	const [payperiods, setPayperiods] = useState();
-	const [isLoadingCompanies, setIsLoadingCompanies] = useState(true);
+	const [errorMessage, setErrorMessage] = useState();
+	const [employees, setEmployees] = useState();
+	const [latestPayperiod, setLatestPayperiod] = useState();
+	
 
 	useEffect(() => {
 		var id =
 			location.pathname.split('/')[location.pathname.split('/').length - 1];
+		getEmployees(id);
 		getCompany(id);
-		getPayperiods(id);		
+		getPayroll(id);
 	}, [location]);
 
 	async function getCompany(id) {
@@ -46,22 +49,28 @@ const Company = (props) => {
 			const response = await axios.get(
 				process.env.REACT_APP_API + 'company/' + id
 			);
-			
+
 			let company = response.data;
-			company.DateOfBirth = moment(company.DateOfBirth).format('YYYY-MM-DD').toString();
-			setCompany(response.data);			
+			company.DateCreated = moment(company.DateCreated)
+				.format('YYYY-MM-DD')
+				.toString();
+			company.DateUpdated = moment(company.DateUpdated)
+				.format('YYYY-MM-DD')
+				.toString();
+			setCompany(response.data);
 			setIsLoadingCompany(false);
 			console.log(response);
 		} catch (error) {
 			console.error(error);
 		}
 	}
-	async function getPayperiods(empId) {
+	async function getPayroll(companyId) {
 		try {
 			const response = await axios.get(
-				process.env.REACT_APP_API + 'dependent/all/' + empId
+				process.env.REACT_APP_API + 'company/payroll/' + companyId
 			);
 			setPayperiods(response.data);
+			setLatestPayperiod(response.data[0].PayrollId)
 			setIsLoadingPayperiods(false);
 			console.log(response);
 		} catch (error) {
@@ -69,40 +78,35 @@ const Company = (props) => {
 		}
 	}
 
-	const schema = yup.object().shape({
-		CompanyId: yup.string(),
-		CompanyFirstName: yup
-			.string()
-			.required('Company First Name is a required field'),
-		CompanyLastName: yup
-			.string()
-			.required('Company Last Name is a required field'),
-		CompanySsn: yup
-			.string()
-			.required('Company SSN is a required field')
-			.matches(/\d{9}/, 'Must only be numbers'),
-		DateOfBirth: yup
-			.date()
-			.required('Company Date of Birth is a required field'),
-		IsTerminated: yup.bool().required(),
-	});
+	const getEmployees = async (companyId) => {
+		try {
+			const response = await axios.get(
+				process.env.REACT_APP_API + `employee/company/${companyId}`
+			);
+			setEmployees(response.data);
+		} catch (error) {
+			console.error(error);
+		}
+	};
 
-	const [selectedDependent, setSelectedDependent] = useState({
-		CompanyId: 1,
-		CompanyName: 'test',
+	const companySchema = yup.object().shape({
+		CompanyId: yup.number(),
+		CompanyName: yup.string().required('Company name is required'),
 	});
 
 	const displayModal = () => {
 		setShowModal(true);
 	};
 	const [modalShow, setModalShow] = useState(false);
-	const [showAlert, setShowAlert] = useState(false);
+	const [showAlertSuccess, setShowAlertSuccess] = useState(false);
+	const [showAlertError, setShowAlertError] = useState(false);
 	let modalClose = () => setModalShow(false);
 
 	const headers = {
 		'Content-Type': 'application/json; charset=utf-8',
 	};
 	const updateCompany = async (values) => {
+		values.CompanyName = values.CompanyName.trim();
 		try {
 			const response = await axios.put(
 				process.env.REACT_APP_API + 'company/' + company.CompanyId,
@@ -111,14 +115,34 @@ const Company = (props) => {
 					headers: headers,
 				}
 			);
-			setShowAlert(true);
+			setShowAlertSuccess(true);
 			setSaveStatusCode(response.status);
-			setShowSuccess(true);
 			setCompany(response.data);
 
 			setTimeout(function () {
-				setShowAlert(false);
+				setShowAlertSuccess(false);
 			}, 3000);
+		} catch (error) {
+			setSaveStatusCode(error.response.status);
+			setErrorMessage(error.response.data);
+			setShowAlertError(true);
+			setCompany(company);
+			setTimeout(function () {
+				setShowAlertError(false);
+			}, 7000);
+		}
+	};
+
+	const generatePaychecks = async (payrollId) => {
+		try {
+			const paycheckResponse = await axios.post(
+				process.env.REACT_APP_API +
+					`paycheck/generatechecks/${company.CompanyId}/${payrollId}`
+			);
+			const payrollResponse = await axios.post(
+				process.env.REACT_APP_API + `company/payroll/${company.CompanyId}`
+			);
+			getPayroll(company.CompanyId)
 		} catch (error) {
 			setSaveStatusCode(error.response.status);
 		}
@@ -127,226 +151,164 @@ const Company = (props) => {
 	return (
 		<div>
 			<Container>
-				<Tabs
-					defaultActiveKey='company'
-					id='uncontrolled-tab-example'
-					className='mb-3'>
-					<Tab eventKey='company' title='Company Information'>
-						<Row>
-							{!isLoadingCompany && (
-								<Formik
-									validationSchema={companySchema}
-									onSubmit={(values, { resetForm }) => {
-										updateCompany(values);
-										resetForm({ values });
-									}}
-									initialValues={company}>
-									{({
-										handleSubmit,
-										handleChange,
-										handleBlur,
-										values,
-										touched,
-										isValid,
-										errors,
-										isSubmitting,
-										resetForm,
-										dirty,
-										setFieldValue,
-										setFieldTouched,
-									}) => (
-										<Form noValidate onSubmit={handleSubmit}>
-											<Row className='mb-3'>
-												<Form.Group as={Col} md='2' controlId='validationFormik01'>
-													<Form.Label>First Name</Form.Label>
-													<Form.Control
-														type='text'
-														name='CompanyFirstName'
-														value={values.CompanyFirstName}
-														onChange={handleChange}
-														isValid={touched.CompanyFirstName && !errors.CompanyFirstName}
-														isInvalid={!!errors.CompanyFirstName}
-													/>
-													<Form.Control.Feedback type='invalid'>
-														{errors.CompanyFirstName}
-													</Form.Control.Feedback>
-												</Form.Group>
-												<Form.Group as={Col} md='2' controlId='validationFormik02'>
-													<Form.Label>Last Name</Form.Label>
-													<Form.Control
-														type='text'
-														name='CompanyLastName'
-														value={values.CompanyLastName}
-														onChange={handleChange}
-														isValid={touched.CompanyLastName && !errors.CompanyLastName}
-														isInvalid={!!errors.CompanyLastName}
-													/>
-													<Form.Control.Feedback type='invalid'>
-														{errors.CompanyLastName}
-													</Form.Control.Feedback>
-												</Form.Group>
-												<Form.Group as={Col} md='2' controlId='validationFormik02'>
-													<Form.Label>Company SSN</Form.Label>
-													<Form.Control
-														type='string'
-														name='CompanySsn'
-														value={values.CompanySsn}
-														onChange={handleChange}
-														isValid={touched.CompanySsn && !errors.CompanySsn}
-														isInvalid={!!errors.CompanySsn}
-													/>
-													<Form.Control.Feedback type='invalid'>
-														{errors.CompanySsn}
-													</Form.Control.Feedback>
-												</Form.Group>
-												<Form.Group as={Col} md='2' controlId='validationFormik02'>
-													<Form.Label>Date of Birth</Form.Label>
-													<Form.Control
-														type='date'
-														name='DateOfBirth'
-														value={values.DateOfBirth}
-														onChange={(e) => {
-															setFieldValue('DateOfBirth', moment(e).format('YYYY-MM-DD'));
-															setFieldTouched('DateOfBirth');
-														}}
-														isValid={touched.DateOfBirth && !errors.DateOfBirth}
-														isInvalid={!!errors.DateOfBirth}
-													/>
-													<Form.Control.Feedback type='invalid'>
-														{errors.DateOfBirth}
-													</Form.Control.Feedback>
-												</Form.Group>
-												<Form.Group as={Col} md='4' controlId='validationFormik02'>
-													<Form.Label>Company</Form.Label>
-													<Form.Control
-														as='select'
-														name='CompanyId'
-														value={values.CompanyId}
-														onChange={handleChange}
-														isValid={touched.CompanyId && !errors.CompanyId}
-														isInvalid={!!errors.CompanyId}>
-														<option>Select a company</option>{' '}
-														{companies.map((company) => (
-															<option key ={company.CompanyId} value={company.CompanyId}>{company.CompanyName}</option>
-														))}
-													</Form.Control>
-												</Form.Group>
-											</Row>
-											<Row className='mb-3'>
-												<Form.Group as={Col} md='8' controlId='validationFormik02'>
-													<Form.Check
-														name='IsTerminated'
-														label='Company has been terminated?'
-														onChange={handleChange}
-														isValid={touched.IsTerminated && !errors.IsTerminated}
-														feedback={errors.IsTerminated}
-														feedbackType='invalid'
-														id='validationFormik0'
-													/>
-												</Form.Group>
-											</Row>
-											<Row className='mb-3'>
-												<Col>
-													<div className='d-flex justify-content-end'>
-														<div>
-															<Button
-																variant='outline-secondary'
-																disabled={isSubmitting || !dirty}
-																onClick={() => resetForm()}>
-																Reset
-															</Button>{' '}
-															<Button type='submit' disabled={isSubmitting || !dirty}>
-																Update Company
-															</Button>
+				<Row>
+					<Col>
+						<Card>
+							<Card.Body>
+								{!isLoadingCompany && (
+									<Formik
+										enableReinitialize
+										validationSchema={companySchema}
+										onSubmit={(values) => {
+											updateCompany(values);
+										}}
+										initialValues={company}>
+										{({
+											handleSubmit,
+											handleChange,
+											handleBlur,
+											values,
+											touched,
+											isValid,
+											errors,
+											isSubmitting,
+											resetForm,
+											dirty,
+										}) => (
+											<Form noValidate onSubmit={handleSubmit}>
+												<Row>
+													<Form.Group as={Col} md='2' controlId='validationFormik01'>
+														<Form.Label>Company Created</Form.Label>
+														<Form.Control
+															type='date'
+															name='DateCreated'
+															readOnly={true}
+															value={moment(values.DateCreated).format('YYYY-MM-DD')}
+															onChange={handleChange}
+														/>
+													</Form.Group>
+													<Form.Group as={Col} md='2' controlId='validationFormik01'>
+														<Form.Label>Company Updated</Form.Label>
+														<Form.Control
+															type='date'
+															name='DateUpdated'
+															readOnly={true}
+															value={moment(values.DateUpdated).format('YYYY-MM-DD')}
+															onChange={handleChange}
+														/>
+													</Form.Group>
+													<Form.Group as={Col} md='2' controlId='validationFormik01'>
+														<Form.Label>Company Name</Form.Label>
+														<Form.Control
+															type='text'
+															name='CompanyName'
+															value={values.CompanyName}
+															onChange={handleChange}
+															isValid={touched.CompanyName && !errors.CompanyName}
+															isInvalid={!!errors.CompanyName}
+														/>
+														<Form.Control.Feedback type='invalid'>
+															{errors.CompanyName}
+														</Form.Control.Feedback>
+													</Form.Group>
+													<Form.Group
+														as={Col}
+														md='3'
+														className='mt-2'
+														controlId='validationFormik01'>
+														<Form.Label></Form.Label>
+														<div className='d-flex justify-content-end'>
+															<div>
+																<Button
+																	variant='outline-secondary'
+																	disabled={!isSubmitting}
+																	onClick={resetForm}>
+																	Reset
+																</Button>{' '}
+																<Button type='submit' disabled={isSubmitting || !dirty}>
+																	Update Company
+																</Button>
+															</div>
 														</div>
-													</div>
-												</Col>
-											</Row>
-										</Form>
-									)}
-								</Formik>
-							)}
-						</Row>
-						{showAlert && (
-							<Row>
-								<Col>
-									<Alert
-										variant='success'
-										onClose={() => setShowAlert(false)}
-										dismissible>
-										<Alert.Heading>Company has been updated!</Alert.Heading>
-										<p>This notification will close shortly.</p>
-									</Alert>
-								</Col>
-							</Row>
+													</Form.Group>
+												</Row>
+											</Form>
+										)}
+									</Formik>
+								)}
+							</Card.Body>
+						</Card>
+					</Col>
+				</Row>
+				<br />
+				{showAlertSuccess && (
+					<Row>
+						<Col>
+							<Alert
+								variant='success'
+								onClose={() => setShowAlertSuccess(false)}
+								dismissible>
+								<Alert.Heading>Company has been updated!</Alert.Heading>
+							</Alert>
+						</Col>
+					</Row>
+				)}
+				{showAlertError && (
+					<Row>
+						<Col>
+							<Alert
+								variant='danger'
+								onClose={() => setShowAlertError(false)}
+								dismissible>
+								<Alert.Heading>{errorMessage}</Alert.Heading>
+							</Alert>
+						</Col>
+					</Row>
+				)}
+				<br />
+				<Row>
+					<Col>
+						{!isLoadingPayperiods && payperiods.length > 0 && (
+							<table class='table align-middle mb-0 bg-white table-striped'>
+								<thead class='bg-light'>
+									<tr>
+										<th>Created Date</th>
+										<th>Pay Period Start Date</th>
+										<th>Pay Period End Date</th>
+										<th></th>
+									</tr>
+								</thead>
+								<tbody>
+									{payperiods.map((pay) => (
+										<tr key={pay.PayperiodId}>
+											<td>{moment(pay.CreateDate).format('MM/DD/YYYY')}</td>
+											<td>{moment(pay.StartDate).format('MM/DD/YYYY')}</td>
+											<td>{moment(pay.EndDate).format('MM/DD/YYYY')}</td>
+											<td>
+												{employees && (
+													<Button
+														variant='primary'
+														disabled={employees.length < 1 || pay.PayrollId !== latestPayperiod}
+														onClick={() => generatePaychecks(pay.PayrollId)}>
+														Generate Checks
+													</Button>
+												)}
+											</td>
+										</tr>
+									))}
+								</tbody>
+							</table>
 						)}
-						<Row>
-							<Col>
-								<button
-									type='button'
-									class='btn btn-primary'
-									onClick={() => displayModal()}>
-									Add Dependent
-								</button>
-							</Col>
-						</Row>
-						<br />
-						<Row>
-							<Col>
-								{!isLoadingPayperiods && payperiods.length > 0 && (
-									<table class='table align-middle mb-0 bg-white table-striped'>
-										<thead class='bg-light'>
-											<tr>
-												<th>First Name</th>
-												<th>Last Name</th>
-												<th>Created Date </th>
-												<th>Updated Date</th>
-												<th></th>
-											</tr>
-										</thead>
-										<tbody>
-											{payperiods.map((dep) => (
-												<tr key={dep.DependentId}>
-													<td>{dep.DependentFirstName}</td>
-													<td>{dep.DependentLastName}</td>
-													<td>{moment(dep.DateCreated).format('MM/DD/YYYY')}</td>
-													<td>{moment(dep.DateUpdated).format('MM/DD/YYYY')}</td>
-													<td>
-														<>
-															<button
-																type='button'
-																class='btn btn-primary'
-																onClick={() => setModalShow(true)}>
-																Edit
-															</button>{' '}
-															<button
-																type='button'
-																class='btn btn-danger'
-																onClick={() => this.deletedep(dep.DependentId)}>
-																Delete
-															</button>
-														</>
-													</td>
-												</tr>
-											))}
-										</tbody>
-									</table>
-								)}
-								{isLoadingPayperiods && (
-									<div class='d-flex justify-content-center'>
-										<div class='spinner-border' role='status'>
-											<span class='visually-hidden'>Loading...</span>
-										</div>
-									</div>
-								)}
-							</Col>
-						</Row>
-					</Tab>
-					<Tab eventKey='paycheck' title='Paychecks'>
-						<Payroll companyId={company.CompanyId} />
-					</Tab>
-				</Tabs>
-			</Container>		
+						{isLoadingPayperiods && (
+							<div class='d-flex justify-content-center'>
+								<div class='spinner-border' role='status'>
+									<span class='visually-hidden'>Loading...</span>
+								</div>
+							</div>
+						)}
+					</Col>
+				</Row>
+			</Container>
 		</div>
 	);
 };
