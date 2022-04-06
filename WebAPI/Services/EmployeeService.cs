@@ -13,20 +13,26 @@ namespace WebAPI.Services
     public class EmployeeService : IEmployeeInterface
     {
         private readonly EmployeeDBContext _dbContext;
+        private readonly ICompanyInterface _companyInterface;
 
-        public EmployeeService(EmployeeDBContext employeeDBContext)
+        public EmployeeService(EmployeeDBContext employeeDBContext, ICompanyInterface companyInterface)
         {
             _dbContext = employeeDBContext;
+            _companyInterface = companyInterface;
         }
 
         public async Task<IEnumerable<Employee>> GetEmployees()
         {
-            return await _dbContext.Employees.ToListAsync();
+            return await _dbContext.Employees.OrderBy(e=>e.EmployeeLastName).ToListAsync();
+        }
+        public async Task<IEnumerable<Employee>> GetEmployees(int companyId)
+        {
+            return await _dbContext.Employees.Where( c=>c.CompanyId == companyId).OrderBy(e => e.EmployeeLastName).ToListAsync();
         }
 
         public async Task<Employee> GetEmployee(int id)
         {
-            return await _dbContext.Employees.Include(e=>e.Dependents).FirstOrDefaultAsync(e => e.EmployeeId == id);
+            return await _dbContext.Employees.Include(e => e.Dependents).FirstOrDefaultAsync(e => e.EmployeeId == id);
         }
 
         public async Task<Employee> AddEmployee(Employee employee)
@@ -36,7 +42,7 @@ namespace WebAPI.Services
             var result = await _dbContext.Employees.AddAsync(employee);
             await _dbContext.SaveChangesAsync();
             return result.Entity;
-        }       
+        }
 
         public async Task<Employee> UpdateEmployee(Employee emp)
         {
@@ -53,6 +59,7 @@ namespace WebAPI.Services
             employee.EmployeeSsn = emp.EmployeeSsn;
             employee.DateOfBirth = emp.DateOfBirth;
             employee.IsTerminated = emp.IsTerminated;
+            employee.CompanyId = emp.CompanyId;
 
             try
             {

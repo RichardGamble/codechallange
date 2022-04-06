@@ -2,27 +2,23 @@ import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 
 import { Container, Row, Col, Button, Alert } from 'react-bootstrap';
-import EmployeeModal from './Employee/EmployeeModal';
-import DeleteConfirmationModal from '../src/Employee/DeleteConfirmationModal';
 import moment from 'moment';
 import { Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 
-const Home = (props) => {
+const Employees = ({companyId}) => {
 	const axios = require('axios');
-	const [modalShow, setModalShow] = useState(false);
-	const [modalShowDelete, setModalShowDelete] = useState(false);
-	const [actionType, setActionType] = useState();
+	const navigate = useNavigate();
 	const [employees, setEmployees] = useState([{}]);
 	const [isLoadingEmployees, setIsLoadingEmployees] = useState(true);
-	const [selectedEmployee, setSelectedEmployee] = useState({});
 
 	useEffect(() => {
-		getEmployees();
-	}, []);
+		getEmployees(companyId);
+	}, [companyId]);
 
-	async function getEmployees() {
+	async function getEmployees(companyId) {
 		try {
-			const response = await axios.get(process.env.REACT_APP_API + 'employee');
+			const response = await axios.get(process.env.REACT_APP_API + 'employee/company/' + companyId);
 			setEmployees(response.data);
 			setIsLoadingEmployees(false);
 			console.log(response);
@@ -31,44 +27,23 @@ const Home = (props) => {
 		}
 	}
 
-	let modalClose = () => {
-		setModalShow(false);
-		getEmployees();
-	};
-
-	let modalCloseDelete = () => {
-		setModalShowDelete(false);
-		getEmployees();
-	};
+	function handleClickNavigate() {
+		navigate('/');
+	}
 
 	return (
 		<div>
 			<Container>
-				<Row>
-					<Col>
-						<button
-							type='button'
-							class='btn btn-primary'
-							onClick={() => setModalShow(true)}>
-							Add Employee
-						</button>
-					</Col>
-				</Row>
-				<br />
-
 				{employees.length < 1 && (
 					<Alert variant='info'>
-						<Alert.Heading>Hi and welcome to Paymentum</Alert.Heading>
 						<p>
-							Looks like you don't have any employees created in the system. Simply,
-							click the "Add Employee" button to begin using this application.
+							Looks like you don't have any employees created in the system. Navigate to the home page to add employees.
 						</p>
-						<hr />
-						<p className='mb-0'>
-							This application was built to simulate a real-world environment where
-							employers input employees and their dependents, and get a preview of the
-							costs.
-						</p>
+						<div className='d-flex justify-content-end'>
+							<Button onClick={handleClickNavigate} >
+								Home 
+							</Button>
+						</div>
 					</Alert>
 				)}
 				{employees.length > 0 && (
@@ -102,16 +77,7 @@ const Home = (props) => {
 																state: { id: emp.EmployeeId },
 															}}>
 															<Button>Edit</Button>
-														</Link>{' '}
-														<button
-															type='button'
-															class='btn btn-danger'
-															onClick={() => {
-																setSelectedEmployee(emp);
-																setModalShowDelete(true);
-															}}>
-															Delete
-														</button>
+														</Link>														
 													</>
 												</td>
 											</tr>
@@ -129,25 +95,11 @@ const Home = (props) => {
 						</Col>
 					</Row>
 				)}
-			</Container>
-
-			<EmployeeModal
-				show={modalShow}
-				employeeInfo={selectedEmployee}
-				action={actionType}
-				onHide={modalClose}
-			/>
-
-			<DeleteConfirmationModal
-				show={modalShowDelete}
-				info={selectedEmployee}
-				isEmployee={true}
-				onHide={modalCloseDelete}
-			/>
+			</Container>			
 		</div>
 	);
 };
 
-Home.propTypes = {};
+Employees.propTypes = {};
 
-export default Home;
+export default Employees;

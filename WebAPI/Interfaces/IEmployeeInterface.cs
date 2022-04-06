@@ -14,5 +14,6 @@ namespace WebAPI.Interfaces
         public Task<Employee> UpdateEmployee(Employee emp);
         public Task<Employee> DeleteEmployee([FromRoute] int id);
         public Task<Employee> AddEmployee(Employee employee);
+        public Task<IEnumerable<Employee>> GetEmployees(int id);
     }
 }

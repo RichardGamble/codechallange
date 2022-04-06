@@ -16,7 +16,6 @@ namespace WebAPI.Models
         }
 
         public int EmployeeId { get; set; }
-        public int CompanyId { get; set; }
         public string EmployeeFirstName { get; set; }
         public string EmployeeLastName { get; set; }
         public string EmployeeSsn { get; set; }
@@ -24,6 +23,7 @@ namespace WebAPI.Models
         public DateTime? DateUpdated { get; set; }
         public DateTime? DateOfBirth { get; set; }
         public bool? IsTerminated { get; set; }
+        public int CompanyId { get; set; }
 
         public virtual Company Company { get; set; }
         public virtual ICollection<Dependent> Dependents { get; set; }

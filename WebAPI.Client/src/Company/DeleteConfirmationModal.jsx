@@ -1,22 +1,19 @@
 import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
-import { Formik } from 'formik';
-import * as yup from 'yup';
 
-import { Modal, Button, Row, Col, Form, InputGroup } from 'react-bootstrap';
+import { Modal, Button, Form } from 'react-bootstrap';
 
 const DeleteConfirmationModal = (props) => {
 	const axios = require('axios');
-	const { info, show, actionType, onHide, isEmployee } = props;
+	const { info, show, onHide } = props;
 	const headers = {
 		'Content-Type': 'application/json',
-		Authorization: 'JWT fefege...',
 	};
 
-	const handleSubmit = (event) => {
+	const handleSubmit = async() => {
 		try {
-			const response = axios.delete(
-				process.env.REACT_APP_API + 'employee/' + info.EmployeeId,
+			const response = await axios.delete(
+				process.env.REACT_APP_API + 'company/' + info.CompanyId,
 				{
 					headers: headers,
 				}
@@ -33,8 +30,14 @@ const DeleteConfirmationModal = (props) => {
 				<Modal.Title>Delete Confirmation</Modal.Title>
 			</Modal.Header>
 			<Modal.Body>
-				Warning!! Deleting this {isEmployee ? 'employee' : 'dependent'} can not be
-				undone. Do you wish to continue?
+				Warning!! Deleting this company can not be
+				undone. <b>Everything </b> associated with this company will be deleted i.e:<ul>
+                    <li>Employeesdependents</li>
+                    <li>Employee's dependents</li>
+                    <li>Employee's paychecks</li>
+                    <li>Payroll</li>
+                </ul>
+                Do you wish to continue deleting {info.CompanyName}?
 			</Modal.Body>
 			<Modal.Footer>
 				<Button variant='secondary' onClick={onHide}>
@@ -42,7 +45,7 @@ const DeleteConfirmationModal = (props) => {
 				</Button>{' '}
 				<Form>
 					<Button variant='danger' type='submit' onClick={handleSubmit}>
-						Yes, delete {isEmployee ? 'employee' : 'dependent'}
+						Yes, delete {info.CompanyName}
 					</Button>
 				</Form>
 			</Modal.Footer>

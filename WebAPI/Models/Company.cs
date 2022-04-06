@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Threading.Tasks;
-using WebAPI.Models.DTOs;
+
+// Code scaffolded by EF Core assumes nullable reference types (NRTs) are not used or disabled.
+// If you have enabled NRTs for your project, then un-comment the following line:
+// #nullable disable
 
 namespace WebAPI.Models
 {
@@ -11,17 +11,16 @@ namespace WebAPI.Models
     {
         public Company()
         {
-            Payrolls = new HashSet<Payroll>();
             Employees = new HashSet<Employee>();
+            Payrolls = new HashSet<Payroll>();
         }
 
-        [Key]
-        public int CompanyId { get; set; }
         public string CompanyName { get; set; }
+        public int CompanyId { get; set; }
         public DateTime? DateCreated { get; set; }
         public DateTime? DateUpdated { get; set; }
-        public virtual ICollection<Employee> Employees{ get; set; }
-        public virtual ICollection<Payroll> Payrolls { get; set; }       
+
+        public virtual ICollection<Employee> Employees { get; set; }
+        public virtual ICollection<Payroll> Payrolls { get; set; }
     }
 }
-

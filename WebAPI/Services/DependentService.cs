@@ -21,7 +21,7 @@ namespace WebAPI.Services
 
         public async Task<IEnumerable<Dependent>> GetDependents(int id)
         {
-            return await _dbContext.Dependents.Where(d => d.EmployeeId == id).ToListAsync();
+            return await _dbContext.Dependents.Where(d => d.EmployeeId == id).OrderBy(d=>d.DependentFirstName).ToListAsync();
         }
 
         public async Task<Dependent> GetDependent(int id)

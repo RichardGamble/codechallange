@@ -6,14 +6,14 @@ import PaycheckModal from './PaycheckModal';
 import DeleteConfirmationModal from './DeleteConfirmationModal';
 import moment from 'moment';
 import { Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 
 const Paychecks = (props) => {
-	const { employeeId } = props;
+	const { employeeId, companyId, employeeInfo, companyInfo  } = props;
 	const axios = require('axios');
+	const navigate = useNavigate();
 	const [modalShow, setModalShow] = useState(false);
-	const [modalShowDelete, setModalShowDelete] = useState(false);
-	const [actionType, setActionType] = useState();
-	const [paychecks, setPaychecks] = useState([{}]);
+	const [paychecks, setPaychecks] = useState({});
 	const [isLoadingPaychecks, setIsLoadingPaychecks] = useState(true);
 	const [selectedPaycheck, setSelectedPaycheck] = useState({});
 
@@ -21,18 +21,23 @@ const Paychecks = (props) => {
 		getPaychecks(employeeId);
 	}, [employeeId]);
 
-	// Want to use async/await? Add the `async` keyword to your outer function/method.
-	async function getPaychecks() {
-		try {
-			const response = await axios.get(
-				process.env.REACT_APP_API + 'paycheck/all/' + employeeId
-			);
-			setPaychecks(response.data);
-			setIsLoadingPaychecks(false);
-			console.log(response);
-		} catch (error) {
-			console.error(error);
+	async function getPaychecks(employeeId) {
+		if (employeeId) {
+			try {
+				const response = await axios.get(
+					process.env.REACT_APP_API + 'paycheck/all/' + employeeId
+				);
+				setPaychecks(response.data);
+				setIsLoadingPaychecks(false);
+				console.log(response);
+			} catch (error) {
+				console.error(error);
+			}
 		}
+	}
+
+	function handleClickNavigate() {
+		navigate('/company/' + companyId);
 	}
 
 	let modalClose = () => {
@@ -41,38 +46,23 @@ const Paychecks = (props) => {
 	};
 
 	let modalCloseDelete = () => {
-		setModalShowDelete(false);
+		setModalShow(false);
 		getPaychecks();
 	};
 
 	return (
 		<div>
 			<Container>
-				<Row>
-					<Col>
-						<button
-							type='button'
-							class='btn btn-primary'
-							onClick={() => setModalShow(true)}>
-							Add Paycheck
-						</button>
-					</Col>
-				</Row>
-				<br />
-
 				{(paychecks.length < 1 || !paychecks) && (
-					<Alert variant='success'>
-						<Alert.Heading>Hi and welcome to Paymentum</Alert.Heading>
+					<Alert variant='info'>
+						<Alert.Heading>Uh-oh</Alert.Heading>
 						<p>
-							Looks like you don't have any paychecks created in the system. Simply,
-							click the "Add Paycheck" button to begin using this application.
+							Looks like there are no paychecks created in the system. Simply, navigate
+							to the companies page to generate a paycheck.
 						</p>
-						<hr />
-						<p className='mb-0'>
-							This application was built to simulate a real-world environment where
-							employers input paychecks and their dependents, and get a preview of the
-							costs.
-						</p>
+						<div className='d-flex justify-content-end'>
+							<Button onClick={() => handleClickNavigate()}>Take me there</Button>
+						</div>
 					</Alert>
 				)}
 
@@ -101,22 +91,13 @@ const Paychecks = (props) => {
 												<td>{moment(pay.CreatedDate).format('MM/DD/YYYY')}</td>
 												<td>
 													<>
-														<Link
-															to={{
-																pathname: `/employee/${pay.PaycheckId}`,
-																state: { id: pay.PaycheckId },
-															}}>
-															<Button>View</Button>
-														</Link>{' '}
-														{/* <button
-															type='button'
-															class='btn btn-danger'
+														<Button
 															onClick={() => {
 																setSelectedPaycheck(pay);
-																setModalShowDelete(true);
+																setModalShow(true);
 															}}>
-															Delete
-														</button> */}
+															View
+														</Button>
 													</>
 												</td>
 											</tr>
@@ -138,16 +119,10 @@ const Paychecks = (props) => {
 
 			<PaycheckModal
 				show={modalShow}
-				employeeInfo={selectedPaycheck}
-				action={actionType}
+				paycheckInfo={selectedPaycheck}
+				employeeInfo={employeeInfo}
+				companyInfo={companyInfo}
 				onHide={modalClose}
-			/>
-
-			<DeleteConfirmationModal
-				show={modalShowDelete}
-				info={selectedPaycheck}
-				isPaycheck={true}
-				onHide={modalCloseDelete}
 			/>
 		</div>
 	);

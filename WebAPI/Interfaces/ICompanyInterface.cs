@@ -16,5 +16,8 @@ namespace WebAPI.Interfaces
         public Task<Company> DeleteCompany([FromRoute] int id);
         public Task<Company> AddCompany(Company employee);
         public Task<IEnumerable<CompanyDTO>> GetCompaniesSimple();
+        public Task<IEnumerable<Payroll>> GetAllPayroll(int id);
+        public Task<Payroll> CreateNewPayroll(int id);
+        public Task<bool> CompanyNameExists(Company company);
     }
 }

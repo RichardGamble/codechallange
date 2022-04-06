@@ -6,8 +6,6 @@ D:\Github\codechallenge\WebAPI\bin\Debug\netcoreapp3.1\WebAPI.runtimeconfig.json
 D:\Github\codechallenge\WebAPI\bin\Debug\netcoreapp3.1\WebAPI.runtimeconfig.dev.json
 D:\Github\codechallenge\WebAPI\bin\Debug\netcoreapp3.1\WebAPI.dll
 D:\Github\codechallenge\WebAPI\bin\Debug\netcoreapp3.1\WebAPI.pdb
-D:\Github\codechallenge\WebAPI\bin\Debug\netcoreapp3.1\System.Net.Http.Formatting.dll
-D:\Github\codechallenge\WebAPI\bin\Debug\netcoreapp3.1\System.Web.Http.dll
 D:\Github\codechallenge\WebAPI\bin\Debug\netcoreapp3.1\Microsoft.AspNetCore.JsonPatch.dll
 D:\Github\codechallenge\WebAPI\bin\Debug\netcoreapp3.1\Microsoft.AspNetCore.Mvc.NewtonsoftJson.dll
 D:\Github\codechallenge\WebAPI\bin\Debug\netcoreapp3.1\Microsoft.Bcl.AsyncInterfaces.dll

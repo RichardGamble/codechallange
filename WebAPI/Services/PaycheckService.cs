@@ -23,7 +23,7 @@ namespace WebAPI.Services
 
         public async Task<IEnumerable<Paycheck>> GetPaychecks(int empId)
         {
-            return await _dbContext.Paychecks.Where(p => p.EmployeeId == empId).Include(p => p.Deductions).ToListAsync();
+            return await _dbContext.Paychecks.Where(p => p.EmployeeId == empId).Include(d => d.Deductions).Include(d => d.Payroll).ToListAsync();
         }
 
         public async Task<Paycheck> GetPaycheck(int id)
@@ -31,7 +31,7 @@ namespace WebAPI.Services
             return await _dbContext.Paychecks.FirstOrDefaultAsync(e => e.PaycheckId == id);
         }
 
-        public async Task<Paycheck> GeneratePaycheck(int id)
+        private async Task<Paycheck> GeneratePaycheck(int id, int payrollId)
         {
             Employee employee = await _employeeInterface.GetEmployee(id);
 
@@ -43,9 +43,10 @@ namespace WebAPI.Services
             decimal dependentsDeductions = 0M;
 
             Paycheck paycheck = new Paycheck();
+            paycheck.PayrollId = payrollId;
             paycheck.EmployeeId = employee.EmployeeId;
             paycheck.GrossPay = grossPay;
-            employeeDeductions -= NameDiscount(employee.EmployeeFirstName) ? discount * employeeBenefitsCost : 0;
+            employeeDeductions -= NameDiscount(employee.EmployeeFirstName) ? discount * employeeBenefitsCost : 0M;
             List<Deduction> deductions = new List<Deduction>();
 
             if (employee.Dependents != null)
@@ -65,21 +66,40 @@ namespace WebAPI.Services
             paycheck.DeductionsTotal = employeeDeductions + dependentsDeductions;
             paycheck.NetPay = paycheck.GrossPay - paycheck.DeductionsTotal;
             paycheck.CreatedDate = DateTime.Now;
-            
+
             var result = await _dbContext.Paychecks.AddAsync(paycheck);
             await _dbContext.SaveChangesAsync();
 
-            if (deductions != null && result!= null) AddDeductions(result.Entity.PaycheckId, deductions);
+            if (deductions != null && result != null) AddDeductions(result.Entity.PaycheckId, deductions);
             return result.Entity;
         }
 
-        public  void AddDeductions(int paycheckId, List<Deduction> deductions)
+        public async Task<IEnumerable<Paycheck>> GeneratePaychecks(int companyId, int payrollId)
+        {
+            var employees = await _employeeInterface.GetEmployees(companyId);
+            List<Paycheck> paychecks = new List<Paycheck>();
+            ICollection<Paycheck> paychecksCollection;
+            foreach (var employee in employees)
+            {
+                var paycheck = await GeneratePaycheck(employee.EmployeeId, payrollId);
+                paychecks.Add(paycheck);
+            }
+
+            await _dbContext.SaveChangesAsync();
+
+            paychecksCollection = paychecks;
+            paychecks = paychecksCollection.OrderByDescending(p => p.PayrollId).ToList();
+
+            return paychecks;
+        }
+
+        public void AddDeductions(int paycheckId, List<Deduction> deductions)
         {
             foreach (Deduction deduction in deductions)
             {
                 deduction.PaycheckId = paycheckId;
-                 _dbContext.Deductions.Add(deduction);
-                 _dbContext.SaveChanges();
+                _dbContext.Deductions.Add(deduction);
+                _dbContext.SaveChanges();
             }
         }
 
@@ -91,25 +111,6 @@ namespace WebAPI.Services
                 return (letter == "A" || letter == "a");
             }
             return false;
-        }
-
-        public async Task<Paycheck> CreatePaycheck(Paycheck emp)
-        {
-            var paycheck = new Paycheck
-            {
-                //PaycheckFirstName = emp.PaycheckFirstName,
-                //PaycheckLastName = emp.PaycheckLastName,
-                //DateCreated = DateTime.Now,
-                //DateUpdated = DateTime.Now,
-                //DateOfBirth = emp.DateOfBirth,
-                //PaycheckSsn = emp.PaycheckSsn,
-                //IsTerminated = emp.IsTerminated
-            };
-
-            _dbContext.Paychecks.Add(paycheck);
-            await _dbContext.SaveChangesAsync();
-
-            return paycheck;
         }
 
         public async Task<Paycheck> UpdatePaycheck(Paycheck emp)
@@ -164,11 +165,6 @@ namespace WebAPI.Services
         private bool PaycheckExists(int id)
         {
             return _dbContext.Paychecks.Any(e => e.PaycheckId == id);
-        }
-
-        public Task<Paycheck> AddPaycheck(Paycheck Paycheck)
-        {
-            throw new NotImplementedException();
         }
     }
 }
