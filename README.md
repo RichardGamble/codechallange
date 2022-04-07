@@ -4,11 +4,11 @@ The following steps will you get started in installing and running the applicati
 
 ## Build Database
 
-### 1. Create DB
+### Create DB
 
   1. Create a database in SSMS named EmployeeDB.
   
-### 2. Create Tables and Populate
+### Create Tables and Populate
 
   1. Run the CreateEmployeeDbScript.sql script found here: [DB Script](https://github.com/RichardGamble/codechallenge/blob/master/CreateEmployeeDbScript.sql).
   2. Run the EFMigrationsInsertScript.sql script found here: [EF Migration Script](https://github.com/RichardGamble/codechallenge/blob/master/EFMigrationsInsertScript.sql).
