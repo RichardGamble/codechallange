@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "dgSpecHash": "jQI9AXPFpGuW5IoX3bBYzsMMLj7QFt45M4XdJjONaJ2Maw1XhtGSBLc6kFHw80UJ0LyQdeF7wFkpU6Kcj7Yp7g==",
+  "dgSpecHash": "Jf8WKeuS2f5fz6SWIqy9rakVBN1wBnLj6AdAID2WqZBmWMKB29hs7FBvS/JT3Q+CnawysKsHSFkUj7+bosPSqQ==",
   "success": true,
   "projectFilePath": "D:\\Github\\codechallenge\\WebAPI\\WebAPI.csproj",
   "expectedPackageFiles": [
@@ -111,7 +111,11 @@
     "C:\\Users\\richa\\.nuget\\packages\\system.xml.readerwriter\\4.3.0\\system.xml.readerwriter.4.3.0.nupkg.sha512",
     "C:\\Users\\richa\\.nuget\\packages\\system.xml.xdocument\\4.3.0\\system.xml.xdocument.4.3.0.nupkg.sha512",
     "C:\\Users\\richa\\.nuget\\packages\\system.xml.xmldocument\\4.3.0\\system.xml.xmldocument.4.3.0.nupkg.sha512",
-    "C:\\Users\\richa\\.nuget\\packages\\system.xml.xmlserializer\\4.3.0\\system.xml.xmlserializer.4.3.0.nupkg.sha512"
+    "C:\\Users\\richa\\.nuget\\packages\\system.xml.xmlserializer\\4.3.0\\system.xml.xmlserializer.4.3.0.nupkg.sha512",
+    "C:\\Users\\richa\\.nuget\\packages\\microsoft.netcore.app.host.win-x64\\3.1.23\\microsoft.netcore.app.host.win-x64.3.1.23.nupkg.sha512",
+    "C:\\Users\\richa\\.nuget\\packages\\microsoft.aspnetcore.app.ref\\3.1.10\\microsoft.aspnetcore.app.ref.3.1.10.nupkg.sha512",
+    "C:\\Users\\richa\\.nuget\\packages\\microsoft.windowsdesktop.app.ref\\3.1.0\\microsoft.windowsdesktop.app.ref.3.1.0.nupkg.sha512",
+    "C:\\Users\\richa\\.nuget\\packages\\microsoft.netcore.app.ref\\3.1.0\\microsoft.netcore.app.ref.3.1.0.nupkg.sha512"
   ],
   "logs": []
 }
